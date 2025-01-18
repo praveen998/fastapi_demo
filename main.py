@@ -9,9 +9,24 @@ from botocore.exceptions import BotoCoreError,ClientError
 import boto3
 from dotenv import load_dotenv
 import mimetypes
-
+from fastapi.middleware.cors import CORSMiddleware
+from fastapi import Depends
+from models import insert_category
+from models import get_db_pool
+import aiomysql
 
 app=FastAPI()
+
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],  # Replace "*" with specific domains if needed
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
+
 
 
 load_dotenv()
@@ -98,3 +113,55 @@ def getmedia():
         return FileResponse(file_path)
     return {"error":"file not found"}
 
+@app.get("/products",response_class=HTMLResponse)
+def getproducts():
+    content= """
+            <div class="col-md-4">
+                <div class="card p-3 card-item">
+                    <div class="d-flex flex-row mb-3"><br>
+                        <img src="/static/images/first.png" width="70"><br>
+                        <div class="d-flex flex-column ml-2"><span>Stripe</span><span class="text-black-50">Payment Services</span><span class="ratings"><i class="fa fa-star"></i><i class="fa fa-star"></i><i class="fa fa-star"></i><i class="fa fa-star"></i></span></div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="card p-3 card-item">
+                    <div class="d-flex flex-row mb-3"><img src="/static/images/second.png" width="70">
+                        <div class="d-flex flex-column ml-2"><span>Mailchimp</span><span class="text-black-50">Project Management</span><span class="ratings"><i class="fa fa-star"></i><i class="fa fa-star"></i><i class="fa fa-star"></i><i class="fa fa-star"></i></span></div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="card p-3 card-item">
+                    <div class="d-flex flex-row mb-3"><img src="/static/images/third.png" width="70">
+                        <div class="d-flex flex-column ml-2"><span>Dropbox</span><span class="text-black-50">File Management</span><span class="ratings"><i class="fa fa-star"></i><i class="fa fa-star"></i><i class="fa fa-star"></i><i class="fa fa-star"></i></span></div>
+                    </div>
+                </div>
+            </div>
+
+    """
+    content=content + """
+            <div class="col-md-4">
+                <div class="card p-3 card-item">
+                    <div class="d-flex flex-row mb-3"><br>
+                        <img src="/static/images/first.png" width="70"><br>
+                        <div class="d-flex flex-column ml-2"><span>Stripe</span><span class="text-black-50">Payment Services</span><span class="ratings"><i class="fa fa-star"></i><i class="fa fa-star"></i><i class="fa fa-star"></i><i class="fa fa-star"></i></span></div>
+                    </div>
+                </div>
+            </div>
+        """
+    return content
+
+@app.get("/insert")
+def insert_category():
+    msg=insert_category()
+    return msg
+
+
+@app.get("/test-connection")
+async def test_connection(pool: aiomysql.pool = Depends(get_db_pool)):
+    async with pool.acquire() as connection:
+        async with connection.cursor() as cursor:
+            await cursor.execute("SELECT 1")
+            result = await cursor.fetchone()
+            return {"status": "Connected", "result": result}
