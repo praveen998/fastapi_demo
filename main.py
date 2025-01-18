@@ -1,4 +1,4 @@
-from fastapi import FastAPI
+from fastapi import FastAPI,HTTPException
 from fastapi.responses import PlainTextResponse
 from fastapi.responses import HTMLResponse
 from fastapi.responses import FileResponse
@@ -11,8 +11,8 @@ from dotenv import load_dotenv
 import mimetypes
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi import Depends
-from models import insert_category
-from models import get_db_pool
+from models import init_db,close_db,insert_category,return_all_category
+
 import aiomysql
 
 app=FastAPI()
@@ -47,6 +47,17 @@ s3_client = boto3.client(
     aws_secret_access_key=AWS_SECRET_ACCESS_KEY,
     region_name=AWS_REGION,
 )
+
+
+@app.on_event("startup")
+async def startup_event():
+    await init_db()
+
+
+@app.on_event("shutdown")
+async def shutdown_event():
+    await close_db()
+
 
 
 @app.get("/upload")
@@ -152,16 +163,26 @@ def getproducts():
         """
     return content
 
+
 @app.get("/insert")
-def insert_category():
-    msg=insert_category()
+async def new_category():
+    msg= await insert_category('car perfumes')
+    print(msg)
     return msg
 
 
-@app.get("/test-connection")
-async def test_connection(pool: aiomysql.pool = Depends(get_db_pool)):
-    async with pool.acquire() as connection:
-        async with connection.cursor() as cursor:
-            await cursor.execute("SELECT 1")
-            result = await cursor.fetchone()
-            return {"status": "Connected", "result": result}
+
+
+@app.get("/list_category")
+async def list_category():
+    msg= await return_all_category()
+    print(msg)
+    return msg
+
+
+from models import return_category_id
+@app.get("/category_id")
+async def category_id():
+    msg= await return_category_id('car perfumes')
+    print(msg)
+    return msg
