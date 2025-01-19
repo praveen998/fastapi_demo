@@ -1,0 +1,32 @@
+curl -X POST "http://127.0.0.1:8000/employee/" \
+-H "Content-Type: application/json" \
+-d '{
+  "name": "100",
+  "email": "johndoe@example.com",
+  "age":"50"
+}'
+
+curl -X POST "http://127.0.0.1:8000/insert/" \
+-H "Content-Type: application/json" \
+-d '{
+  "category": "body perfumes"
+}'
+
+
+
+
+curl -X GET "http://127.0.0.1:8000/list_category"
+
+
+curl -X POST "http://127.0.0.1:8000/employee/{"name": "100","email": "johndoe@example.com","age":"50"}"
+
+
+
+curl -X POST "http://127.0.0.1:8000/insert_pefume_details/" \
+-H "Content-Type: application/json" \
+-d '{
+  "category_name": "car perfumes",
+  "perfumes_name": "topone",
+  "perfumes_description":"nice perfume",
+  "perfumes_price":100
+}'

@@ -13,7 +13,6 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi import Depends
 from models import init_db,close_db,insert_category,return_all_category
 
-import aiomysql
 
 app=FastAPI()
 
@@ -25,8 +24,6 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
-
-
 
 
 load_dotenv()
@@ -58,6 +55,12 @@ async def startup_event():
 async def shutdown_event():
     await close_db()
 
+from pydanticmodels import Employee
+@app.post("/employee/")
+async def create_eployee(emp:Employee):
+    print('type of age:',type(emp.age))
+    print('type of name:',type(emp.name))
+    return {'message':f'employee{emp.name} has been created','data':emp}
 
 
 @app.get("/upload")
@@ -126,37 +129,20 @@ def getmedia():
 
 @app.get("/products",response_class=HTMLResponse)
 def getproducts():
+    perfume_name='bestone'
+    Perfumes_details='use in car fffffffffffffff hhhhhhhhhhhhhhhhhh eeeeeeeeeeeeeeeeee'
+    perfume_price=50
+
     content= """
-            <div class="col-md-4">
-                <div class="card p-3 card-item">
-                    <div class="d-flex flex-row mb-3"><br>
-                        <img src="/static/images/first.png" width="70"><br>
-                        <div class="d-flex flex-column ml-2"><span>Stripe</span><span class="text-black-50">Payment Services</span><span class="ratings"><i class="fa fa-star"></i><i class="fa fa-star"></i><i class="fa fa-star"></i><i class="fa fa-star"></i></span></div>
-                    </div>
-                </div>
-            </div>
-            <div class="col-md-4">
-                <div class="card p-3 card-item">
-                    <div class="d-flex flex-row mb-3"><img src="/static/images/second.png" width="70">
-                        <div class="d-flex flex-column ml-2"><span>Mailchimp</span><span class="text-black-50">Project Management</span><span class="ratings"><i class="fa fa-star"></i><i class="fa fa-star"></i><i class="fa fa-star"></i><i class="fa fa-star"></i></span></div>
-                    </div>
-                </div>
-            </div>
-            <div class="col-md-4">
-                <div class="card p-3 card-item">
-                    <div class="d-flex flex-row mb-3"><img src="/static/images/third.png" width="70">
-                        <div class="d-flex flex-column ml-2"><span>Dropbox</span><span class="text-black-50">File Management</span><span class="ratings"><i class="fa fa-star"></i><i class="fa fa-star"></i><i class="fa fa-star"></i><i class="fa fa-star"></i></span></div>
-                    </div>
-                </div>
-            </div>
+
 
     """
-    content=content + """
+    content=content + f"""
             <div class="col-md-4">
                 <div class="card p-3 card-item">
                     <div class="d-flex flex-row mb-3"><br>
                         <img src="/static/images/first.png" width="70"><br>
-                        <div class="d-flex flex-column ml-2"><span>Stripe</span><span class="text-black-50">Payment Services</span><span class="ratings"><i class="fa fa-star"></i><i class="fa fa-star"></i><i class="fa fa-star"></i><i class="fa fa-star"></i></span></div>
+                        <div class="d-flex flex-column ml-2"><span>{perfume_name}</span><span class="text-black-50">perfume details:{Perfumes_details}</span><span>price:{perfume_price}</span><span class="ratings"><i class="fa fa-star"></i><i class="fa fa-star"></i><i class="fa fa-star"></i><i class="fa fa-star"></i></span></div>
                     </div>
                 </div>
             </div>
@@ -164,9 +150,10 @@ def getproducts():
     return content
 
 
-@app.get("/insert")
-async def new_category():
-    msg= await insert_category('car perfumes')
+from pydanticmodels import Perfume_category
+@app.post("/insert/")
+async def new_category(cate:Perfume_category):
+    msg= await insert_category(cate.category)
     print(msg)
     return msg
 
@@ -186,3 +173,15 @@ async def category_id():
     msg= await return_category_id('car perfumes')
     print(msg)
     return msg
+
+
+from models import insert_perfumes_details
+from pydanticmodels import Perfumes_details
+@app.post("/insert_pefume_details/")
+async def category_id(perfume:Perfumes_details):
+    msg= await insert_perfumes_details(perfume)
+    print(msg)
+    return msg
+
+
+
