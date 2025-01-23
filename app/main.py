@@ -3,7 +3,6 @@ from fastapi.responses import PlainTextResponse
 from fastapi.responses import HTMLResponse
 from fastapi.responses import FileResponse
 import os
-
 from fastapi import File,UploadFile,HTTPException
 from botocore.exceptions import BotoCoreError,ClientError
 import boto3
@@ -11,7 +10,11 @@ from dotenv import load_dotenv
 import mimetypes
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi import Depends
-from models import init_db,close_db,insert_category,return_all_category
+from app.models import init_db,close_db,insert_category,return_all_category,list_product_by_category
+from app.models import return_category_id,insert_product_details
+from app.pydanticmodels import Product_category,Product_category,Employee,Product_details
+from app.utils import create_new_html
+
 
 
 app=FastAPI()
@@ -28,7 +31,6 @@ app.add_middleware(
 
 load_dotenv()
 # AWS S3 Configuration
-
 
 AWS_ACCESS_KEY_ID = os.getenv("AWS_ACCESS_KEY_ID")
 AWS_SECRET_ACCESS_KEY = os.getenv("AWS_SECRET_ACCESS_KEY")
@@ -55,7 +57,7 @@ async def startup_event():
 async def shutdown_event():
     await close_db()
 
-from pydanticmodels import Employee
+
 @app.post("/employee/")
 async def create_eployee(emp:Employee):
     print('type of age:',type(emp.age))
@@ -120,6 +122,7 @@ def htmltext():
     """
     return html_content
 
+
 @app.get("/media")
 def getmedia():
     file_path="media/kali-linux-3840x2160-18058.jpg"
@@ -127,22 +130,21 @@ def getmedia():
         return FileResponse(file_path)
     return {"error":"file not found"}
 
+
 @app.get("/products",response_class=HTMLResponse)
 def getproducts():
-    perfume_name='bestone'
-    Perfumes_details='use in car fffffffffffffff hhhhhhhhhhhhhhhhhh eeeeeeeeeeeeeeeeee'
-    perfume_price=50
+    product_name='bestone'
+    Product_details='use in car fffffffffffffff hhhhhhhhhhhhhhhhhh eeeeeeeeeeeeeeeeee'
+    product_price=50
 
     content= """
-
-
     """
     content=content + f"""
             <div class="col-md-4">
                 <div class="card p-3 card-item">
                     <div class="d-flex flex-row mb-3"><br>
                         <img src="/static/images/first.png" width="70"><br>
-                        <div class="d-flex flex-column ml-2"><span>{perfume_name}</span><span class="text-black-50">perfume details:{Perfumes_details}</span><span>price:{perfume_price}</span><span class="ratings"><i class="fa fa-star"></i><i class="fa fa-star"></i><i class="fa fa-star"></i><i class="fa fa-star"></i></span></div>
+                        <div class="d-flex flex-column ml-2"><span>{product_name}</span><span class="text-black-50">perfume details:{Product_details}</span><span>price:{product_price}</span><span class="ratings"><i class="fa fa-star"></i><i class="fa fa-star"></i><i class="fa fa-star"></i><i class="fa fa-star"></i></span></div>
                     </div>
                 </div>
             </div>
@@ -150,38 +152,43 @@ def getproducts():
     return content
 
 
-from pydanticmodels import Perfume_category
-@app.post("/insert/")
-async def new_category(cate:Perfume_category):
+
+@app.post("/insert_category/")
+async def new_category(cate:Product_category):
     msg= await insert_category(cate.category)
     print(msg)
     return msg
 
 
-
-
 @app.get("/list_category")
 async def list_category():
     msg= await return_all_category()
-    print(msg)
     return msg
 
 
-from models import return_category_id
+
 @app.get("/category_id")
 async def category_id():
-    msg= await return_category_id('car perfumes')
+    msg= await return_category_id('car perfume')
     print(msg)
     return msg
 
 
-from models import insert_perfumes_details
-from pydanticmodels import Perfumes_details
-@app.post("/insert_pefume_details/")
-async def category_id(perfume:Perfumes_details):
-    msg= await insert_perfumes_details(perfume)
+@app.post("/insert_product_details/")
+async def category_id(product:Product_details):
+    msg= await insert_product_details(product)
     print(msg)
     return msg
 
+
+#return products based on product category
+
+
+@app.post("/list_products/",response_class=HTMLResponse)
+async def list_product(Category:Product_category):
+    print('category:',Category.category)
+    msg= await list_product_by_category(Category.category)
+    htmlcode=await create_new_html(msg)
+    return htmlcode
 
 

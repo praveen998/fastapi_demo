@@ -1,5 +1,3 @@
-import mysql.connector
-from mysql.connector import pooling
 from aiomysql import create_pool,Error,DictCursor
 from fastapi import Depends
 import os 
@@ -17,21 +15,11 @@ DB_CONFIG={
         "user":'nibhasitsolutions',
         "password":'248646',
         "db":'hhhperfumes',  # Ensure you specify the database name here
-        "minsize":Query OK, 1 row affected (1.33 sec)
-
-mysql> select * from perfumes_details;
-+----+-------------+---------------+----------------------+----------------+
-| id | category_id | perfumes_name | perfumes_description | perfumes_price |
-+----+-------------+---------------+----------------------+----------------+
-|  2 |           4 | bestone       | good perfume         |             50 |
-+----+-------------+---------------+----------------------+----------------+
-1 row in set (0.00 sec)
-
-mysql> delete from perfumes_details where id=2;
-1,
+        "minsize":1,
         "maxsize":5,
         }
 '''
+
 DB_CONFIG={
         "host":os.getenv('host'),  # IP address without 'http://'
         "port":int(os.getenv('port')),
@@ -41,6 +29,7 @@ DB_CONFIG={
         "minsize":1,
         "maxsize":5,
         }
+
 pool =None
 
 
@@ -56,14 +45,14 @@ async def close_db():
             await pool.wait_closed()
 
 
-#insert new perfume category into perfumes_categories table----------------------------------------------
+#insert new product category into product_categories table----------------------------------------------
 async def insert_category(categories:str):
       global pool
       try:
             async with pool.acquire() as connection:
                   async with connection.cursor() as cursor:
                         await cursor.execute(
-                            "insert into perfumes_categories(categories) values(%s)",(categories)
+                            "insert into product_categories(categories) values(%s)",(categories)
                         )
                         await connection.commit()
                         return {"success": True, "message": "categories inserted successfully"}
@@ -74,13 +63,13 @@ async def insert_category(categories:str):
 
 
 
-#return all categories of perfumes------------------------------------------------------------------------
+#return all categories of product------------------------------------------------------------------------
 async def return_all_category():
       global pool
       try:
             async with pool.acquire() as connection:
                   async with connection.cursor(DictCursor) as cursor:
-                        await cursor.execute("select categories from perfumes_categories")
+                        await cursor.execute("select categories from product_categories")
                         result=await cursor.fetchall()
                         return result
       except Error as e:
@@ -90,13 +79,14 @@ async def return_all_category():
 
 
 
-#retrun perfume category id--------------------------------------------------------------------------------------------------------------
+
+#retrun product category id--------------------------------------------------------------------------------------------------------------
 async def return_category_id(category:str):
       global pool
       try:
             async with pool.acquire() as connection:
                   async with connection.cursor(DictCursor) as cursor:
-                        await cursor.execute("select id from perfumes_categories where categories=%s",(category))
+                        await cursor.execute("select id from product_categories where categories=%s",(category))
                         result=await cursor.fetchone()
                         return result
       except Error as e:
@@ -106,17 +96,17 @@ async def return_category_id(category:str):
 
 
 
-#insert perfume details-----------------------------------------------------------------------------------------------------------------------
-async def insert_perfumes_details(perfume_detais):
+#insert product details-----------------------------------------------------------------------------------------------------------------------
+async def insert_product_details(product_detais):
       global pool
-      result=await return_category_id(perfume_detais.category_name)
+      result=await return_category_id(product_detais.category_name)
       if result:
             try:
                   async with pool.acquire() as connection:
                         async with connection.cursor() as cursor:
                                 await cursor.execute(
-                                    "insert into perfumes_details(category_id,perfumes_name,perfumes_description,perfumes_price) values(%s,%s,%s,%s)",
-                                    (result['id'],perfume_detais.perfumes_name,perfume_detais.perfumes_description,perfume_detais.perfumes_price))
+                                    "insert into product_details(category_id,product_name,product_description,product_price) values(%s,%s,%s,%s)",
+                                    (result['id'],product_detais.product_name,product_detais.product_description,product_detais.product_price))
                                 await connection.commit()
                                 return {"success": True, "message": "categories inserted successfully"}
             except Error as e:
@@ -125,19 +115,18 @@ async def insert_perfumes_details(perfume_detais):
                     return {"success": False, "message": f"Unexpected error: {e}"}
       else:
             return {"success": False, "message": "no category found"}
-              
-      
-    
 
-#retrieve category id from perfumes_categories table------------------------------------------------------------------------------------
-async def list_perfume_by_category(category:str):
+
+
+#retrieve list of product from product_details table-------------------------------------------------------------------------------------------
+async def list_product_by_category(category:str):
       global pool
       result=await return_category_id(category)
       if result:
             try:
                   async with pool.acquire() as connection:
                         async with connection.cursor(DictCursor) as cursor:
-                              await cursor.execute("select perfumes_name,perfumes_description,perfumes_price from perfumes_details where category_id=%s",(result['id']))
+                              await cursor.execute("select product_name,product_description,product_price from product_details where category_id = %s ",(result['id']))
                               data=await cursor.fetchall()
                               return data
             except Error as e:
@@ -146,6 +135,8 @@ async def list_perfume_by_category(category:str):
                   return {"success": False, "message": f"Unexpected error: {e}"}
       else:
             return {"success": False, "message": "no category found"}
-              
+            
+
+
       
 #d= list_perfume_by_category('car perfumes')

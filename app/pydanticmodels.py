@@ -6,19 +6,22 @@ class Employee(BaseModel):
     email:str
     age:Optional[int] =None
 
-class Perfume_category(BaseModel):
+
+class Product_category(BaseModel):
     id:Optional[int] =None
     category:Optional[str] =None
 
-class Perfumes_details(BaseModel):
+
+class Product_details(BaseModel):
     category_name:str
-    perfumes_name:str
-    perfumes_description:Optional[str] =None
-    perfumes_price:int
+    product_name:str
+    product_description:Optional[str] =None
+    product_price:int
 
 
-class perfumes_html(BaseModel):
+class product_html(BaseModel):
     id:Optional[int]=None
     category_id:Optional[int] =None
     htmlcode:Optional[str]=None
+
 

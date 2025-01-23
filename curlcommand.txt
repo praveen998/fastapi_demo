@@ -6,10 +6,10 @@ curl -X POST "http://127.0.0.1:8000/employee/" \
   "age":"50"
 }'
 
-curl -X POST "http://127.0.0.1:8000/insert/" \
+curl -X POST "http://127.0.0.1:8000/insert_category/" \
 -H "Content-Type: application/json" \
 -d '{
-  "category": "body perfumes"
+  "category": "hand wash"
 }'
 
 
@@ -22,11 +22,21 @@ curl -X POST "http://127.0.0.1:8000/employee/{"name": "100","email": "johndoe@ex
 
 
 
-curl -X POST "http://127.0.0.1:8000/insert_pefume_details/" \
+
+curl -X POST "http://127.0.0.1:8000/insert_product_details/" \
 -H "Content-Type: application/json" \
 -d '{
   "category_name": "car perfumes",
-  "perfumes_name": "topone",
-  "perfumes_description":"nice perfume",
-  "perfumes_price":100
+  "product_name": "car fresh",
+  "product_description":"car freshnes",
+  "product_price":50
 }'
+
+
+
+curl -X POST "http://127.0.0.1:8000/list_products/" \
+-H "Content-Type: application/json" \
+-d '{
+  "category": "body perfumes"
+}'
+
