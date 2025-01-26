@@ -1,4 +1,4 @@
-from fastapi import FastAPI,HTTPException
+from fastapi import FastAPI,HTTPException,Request
 from fastapi.responses import PlainTextResponse
 from fastapi.responses import HTMLResponse
 from fastapi.responses import FileResponse
@@ -14,10 +14,17 @@ from app.models import init_db,close_db,insert_category,return_all_category,list
 from app.models import return_category_id,insert_product_details
 from app.pydanticmodels import Product_category,Product_category,Employee,Product_details
 from app.utils import create_new_html
-
-
-
+from fastapi.templating import Jinja2Templates
+from fastapi.staticfiles import StaticFiles
 app=FastAPI()
+
+
+# Set up the templates directory
+templates = Jinja2Templates(directory="templates")
+# Mount the static files directory
+app.mount("/static", StaticFiles(directory="static"), name="static")
+
+
 
 
 app.add_middleware(
@@ -27,6 +34,7 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
 
 
 load_dotenv()
@@ -56,6 +64,17 @@ async def startup_event():
 @app.on_event("shutdown")
 async def shutdown_event():
     await close_db()
+
+
+
+
+@app.get("/", response_class=HTMLResponse)
+async def home(request: Request):
+    return templates.TemplateResponse("index.html", {"request": request})
+
+@app.get("/buynow", response_class=HTMLResponse)
+async def buynow(request: Request):
+    return templates.TemplateResponse("buynow.html", {"request": request})
 
 
 @app.post("/employee/")
@@ -92,10 +111,6 @@ def upload():
 
 
 
-#return json response-------------------------
-@app.get("/")
-def home():
-    return {"hello":"world"}
 
 #return plaintext response--------------------
 @app.get("/plaintext",response_class=PlainTextResponse)
@@ -121,7 +136,6 @@ def htmltext():
     </html>
     """
     return html_content
-
 
 @app.get("/media")
 def getmedia():
