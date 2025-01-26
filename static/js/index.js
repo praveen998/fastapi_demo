@@ -1,6 +1,7 @@
 
 seturl()
-const CART_KEY = "globalCart";
+
+
 $.ajax({
     url: geturl()+"/list_category",
     method: "GET",
@@ -19,31 +20,36 @@ $.ajax({
     }
 });
 
-$('#buy-now-btn').click(function(e) {
-    //e.preventDefault();  // Prevent the default action of the link
-    //var productTitle = $(this).closest('.card-body').find('.card-title').text();  // Get the text of the card-title
-    //alert("You selected: " + productTitle);  // Show alert with the product title
-    alert('hai');
 
-});
 
-$('#buynow').click(function(){
-    alert('buy now');
-});
+
 
 $(document).ready(function () {
+    loadCart();
+
+
+$("#remove").click(function(){
+    removeFromCart(2);
+});
   
+$("#emptycart").click(function(){
+    emptyCart();
+});
+
+$("#iterate").click(function(){
+    iterateCartItems();
+});
+
 const data = {"category": "body perfumes"};
 
 $.ajax({
-    url: geturl()+"/list_products/", // Update URL if hosted elsewhere
+    url: geturl()+"/list_products/", // Update URL if hosted else where
     method: "POST",
     contentType: "application/json",
     data:JSON.stringify(data),
     success: function (data) {
         // Append fetched text to the div
         $('#grid-container').html(data);
-
         $('#grid-container').on('click', '#buynow', function(e) {
             e.preventDefault();
             var closestCard = $(this).closest('.card');
@@ -54,9 +60,9 @@ $.ajax({
             var productPrice = parseInt(productPrice.replace(/[₹,]/g, '')); 
             create_buynow_storage(productName,productImageSrc,productPrice,productDescription)
             window.location.href = geturl()+"/buynow";
-            
-          
         });
+
+
 
         $('#grid-container').on('click', '#addcart', function(e) {
             e.preventDefault()
@@ -66,30 +72,8 @@ $.ajax({
             var productDescription = closestCard.find('[id^="product_description"]').text();
             var productPrice = closestCard.find('[id^="product_price"]').text();
             var productPrice = parseInt(productPrice.replace(/[₹,]/g, '')); 
-
-            let cart = getCart();
-            let product = {
-                product_name: productName,
-                product_image: productImageSrc,
-                product_description: productDescription,
-                product_price: productPrice,
-                product_quantity: 1 // Default quantity is 1
-            };
-                 // Check if the product already exists in the cart
-            let existingProduct = cart.find(item => item.name === product.name);
-            if (existingProduct) {
-                // If product exists, increase quantity
-                existingProduct.quantity += 1;
-            } else {
-                // Add new product to cart
-                cart.push(product);
-            }
-
-            saveCart(cart);
-            const cartDetails = formatCartDetails(cart);
-            alert(cartDetails);
-
-            //window.location.href = geturl()+"/buynow";
+            addToCart(productName,productImageSrc,productDescription,productPrice);
+            window.location.href = geturl()+"/cart";
                
         });
 
@@ -135,6 +119,7 @@ $("#styledSelect").on("change", function () {
           
             });
 
+
             $('#grid-container').on('click', '#addcart', function(e) {
                 e.preventDefault();
                 var closestCard = $(this).closest('.card');
@@ -143,7 +128,8 @@ $("#styledSelect").on("change", function () {
                 var productDescription = closestCard.find('[id^="product_description"]').text();
                 var productPrice = closestCard.find('[id^="product_price"]').text();
                 var productPrice = parseInt(productPrice.replace(/[₹,]/g, '')); 
-                window.location.href = geturl()+"/buynow";
+                addToCart(productName,productImageSrc,productDescription,productPrice);
+                window.location.href = geturl()+"/cart";
            
             });
 
@@ -216,30 +202,67 @@ function geturl(){
     return url;
 }
 
+let cart=[];
 
-function getCart() {
-    const cart = localStorage.getItem(CART_KEY);
-    return cart ? JSON.parse(cart) : [];
+function saveCart() {
+    localStorage.setItem('mycart', JSON.stringify(cart));
 }
 
-function saveCart(cart) {
-    localStorage.setItem(CART_KEY, JSON.stringify(cart));
+function loadCart() {
+    const storedCart = localStorage.getItem('mycart');
+    cart = storedCart ? JSON.parse(storedCart) : [];
+}
+
+function addToCart(productName,productImageSrc,productDescription,productPrice) {
+    // Example item to add (you can dynamically change this)
+    const newItem = {
+        product_name: productName,
+        product_description: productDescription,
+        product_price: productPrice ,
+        product_src : productImageSrc,
+        product_count : 1
+    };
+
+    // Add the new item to the cart
+    cart.push(newItem);
+
+    // Save the updated cart to localStorage
+    saveCart();
+
+    // Print the cart in the console for debugging
+    console.log("Updated Cart:", cart);
 }
 
 
-  // Function to format cart details for alert
-  function formatCartDetails(cart) {
-    if (cart.length === 0) {
-        return "Your cart is empty!";
+function removeFromCart(itemId) {
+    // Filter out the item with the given ID
+    cart = cart.filter(item => item.id !== itemId);
+
+    // Save the updated cart to localStorage
+    saveCart();
+
+    // Print the cart in the console for debugging
+    console.log("Updated Cart After Removal:", cart);
+}
+
+
+function emptyCart() {
+    // Clear the global cart list
+    cart = [];
+
+    // Clear the cart from localStorage
+    localStorage.removeItem('mycart');
+
+    // Debugging: Log the empty cart
+    console.log("Cart is now empty:", cart);
+}
+
+
+function iterateCartItems() {
+    for (let i = 0; i < cart.length; i++) {
+        const item = cart[i];
+        console.log(`Item ${i + 1}:`, item);
+        // You can add more actions here, such as displaying the items in a UI.
+    
     }
-
-    let details = "Cart Details:\n";
-    cart.forEach((item, index) => {
-        details += `\nItem ${index + 1}:\n`;
-        details += `Name: ${item.product_name}\n`;
-        details += `Description: ${item.product_description}\n`;
-        details += `Price: ₹${item.product_price}\n`;
-        details += `Quantity: ${item.product_quantity}\n`;
-    });
-    return details;
 }

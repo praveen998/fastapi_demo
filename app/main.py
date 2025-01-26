@@ -77,6 +77,12 @@ async def buynow(request: Request):
     return templates.TemplateResponse("buynow.html", {"request": request})
 
 
+@app.get("/cart", response_class=HTMLResponse)
+async def cart(request: Request):
+    return templates.TemplateResponse("cart.html", {"request": request})
+
+
+
 @app.post("/employee/")
 async def create_eployee(emp:Employee):
     print('type of age:',type(emp.age))

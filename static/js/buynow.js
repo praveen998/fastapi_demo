@@ -4,8 +4,8 @@ function geturl(){
     return url;
 }
 
-
 $(document).ready(function () {
+    append_cart_item();
 
     //retrieve_buynow_storage()
     $('#max').click(function () {
@@ -64,4 +64,59 @@ function maxize_price(){
     product.product_count +=1;
     localStorage.setItem(key, JSON.stringify(product));
     return product.product_count;
+}
+
+function append_cart_item(){
+    const key = 'buynow_product';
+    const storedValue = localStorage.getItem(key);
+    if (storedValue) {
+        let parsedValue = JSON.parse(storedValue);
+        
+        // alert('Product Name: ' +  parsedValue.product_name  + '\n' +
+        //     'Image Source: ' + parsedValue.product_src + '\n' +
+        //     'Description: ' + parsedValue.product_description  + '\n' +
+        //     'Price: ' + parsedValue.product_price);
+        carditem=`
+                        <div class="row align-items-center">
+                            <div class="col-4 text-center">
+                                <img  src=${parsedValue.product_src}
+                                alt="Blue Jeans Jacket" class="rounded-3">
+                            </div>
+                            <div class="col-8">
+                                <span class="mb-0 text-price d-block">${parsedValue.product_price}</span>
+                                <p class="mb-0"><b>${parsedValue.product_name}</b></p>
+                                <span>Black</span> <span>${parsedValue.product_description}</span>
+                                <div class="d-flex align-items-center mt-3">
+                                    <button id="max" class="btn btn-primary btn-sm me-2">Increase</button>
+                                    <div id="count">1</div>
+                                    <button id="min" class="btn btn-secondary btn-sm ms-2">Decrease</button>
+                                </div>
+                                <p class="mt-2">Qty: <span>1</span></p>
+                            </div>
+                        </div>
+    `
+    $("#card_item").html(carditem);
+
+    } else {
+        console.log(`${key} does not exist.`);
+    }
+    
+}
+
+
+function retrieve_buynow_storage(){
+    const key = 'buynow_product';
+    const storedValue = localStorage.getItem(key);
+    if (storedValue) {
+        let parsedValue = JSON.parse(storedValue);
+        
+        // alert('Product Name: ' +  parsedValue.product_name  + '\n' +
+        //     'Image Source: ' + parsedValue.product_src + '\n' +
+        //     'Description: ' + parsedValue.product_description  + '\n' +
+        //     'Price: ' + parsedValue.product_price);
+
+    } else {
+        console.log(`${key} does not exist.`);
+    }
+
 }
