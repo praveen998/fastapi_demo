@@ -1,5 +1,7 @@
 from pydantic import BaseModel
-from typing import Optional
+from typing import Optional, Dict, Any
+from dotenv import load_dotenv
+import os
 
 class Employee(BaseModel):
     name:str
@@ -16,7 +18,7 @@ class Product_details(BaseModel):
     category_name:str
     product_name:str
     product_description:Optional[str] =None
-    product_price:int
+    product_price:Dict[str,Any]
 
 
 class product_html(BaseModel):
@@ -25,3 +27,13 @@ class product_html(BaseModel):
     htmlcode:Optional[str]=None
 
 
+class Admin(BaseModel):
+    username:str
+    password:str
+
+    # @classmethod
+    # def check_auth(username:str,password:str):
+    #     if username == os.getenv("admin_username") and password == os.getenv("admin_password"):
+    #         return {'status':'success'}
+    #     else:
+    #         return {'status':'error'}

@@ -11,11 +11,12 @@ import mimetypes
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi import Depends
 from app.models import init_db,close_db,insert_category,return_all_category,list_product_by_category
-from app.models import return_category_id,insert_product_details
-from app.pydanticmodels import Product_category,Product_category,Employee,Product_details
-from app.utils import create_new_html
+from app.models import return_category_id,insert_product_details,pool
+from app.pydanticmodels import Product_category,Product_category,Employee,Product_details,Admin
+from app.utils import create_new_html,verify_password,verify_admin_jwt_token,create_jwt_token
 from fastapi.templating import Jinja2Templates
 from fastapi.staticfiles import StaticFiles
+from app.database import init_ormdb
 app=FastAPI()
 
 
@@ -36,7 +37,7 @@ app.add_middleware(
 )
 
 
-
+init_ormdb()
 load_dotenv()
 # AWS S3 Configuration
 
@@ -72,6 +73,7 @@ async def shutdown_event():
 async def home(request: Request):
     return templates.TemplateResponse("index.html", {"request": request})
 
+
 @app.get("/buynow", response_class=HTMLResponse)
 async def buynow(request: Request):
     return templates.TemplateResponse("buynow.html", {"request": request})
@@ -82,12 +84,40 @@ async def cart(request: Request):
     return templates.TemplateResponse("cart.html", {"request": request})
 
 
-
 @app.post("/employee/")
 async def create_eployee(emp:Employee):
     print('type of age:',type(emp.age))
     print('type of name:',type(emp.name))
     return {'message':f'employee{emp.name} has been created','data':emp}
+
+
+@app.get("/admin",response_class=HTMLResponse)
+async def adminpage(request: Request):
+    return templates.TemplateResponse("adminlogin.html", {"request": request})
+
+#addmin authentication--------------------------------------------------------
+@app.post("/adminauth")
+async def adminpage(admin:Admin):
+    print('username:',admin.username)
+    print('password:',admin.password)
+    val=verify_password(admin.password,os.getenv('adminhash'))
+    #status=Admin.check_auth(Admin.username,Admin.password)
+    if val:
+          token = create_jwt_token({"username": admin.username})
+          print(token)
+          return {"message": "Login successful", "status": "success","token": token}
+    else:
+          raise HTTPException(status_code=401, detail="Invalid username or password")
+#--- -------------------------------------------------------------------------
+
+
+@app.get("/protected")
+async def protected_route(user: dict = Depends(verify_admin_jwt_token)):
+    print(user)
+    return {"message": "Access granted", "user": user}
+
+
+
 
 
 @app.get("/upload")
@@ -124,24 +154,6 @@ def plaintext():
     return "Hello world"
 
 
-#return html response-------------------------
-@app.get("/htmltext",response_class=HTMLResponse)
-def htmltext():
-    html_content = """
-    <!DOCTYPE html>
-    <html lang="en">
-    <head>
-        <meta charset="UTF-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <title>FastAPI HTML Response</title>
-    </head>
-    <body>
-        <h1>Hello, World!</h1>
-        <p>This is an example of returning HTML from FastAPI.</p>
-    </body>
-    </html>
-    """
-    return html_content
 
 @app.get("/media")
 def getmedia():
@@ -149,27 +161,6 @@ def getmedia():
     if os.path.exists(file_path):
         return FileResponse(file_path)
     return {"error":"file not found"}
-
-
-@app.get("/products",response_class=HTMLResponse)
-def getproducts():
-    product_name='bestone'
-    Product_details='use in car fffffffffffffff hhhhhhhhhhhhhhhhhh eeeeeeeeeeeeeeeeee'
-    product_price=50
-
-    content= """
-    """
-    content=content + f"""
-            <div class="col-md-4">
-                <div class="card p-3 card-item">
-                    <div class="d-flex flex-row mb-3"><br>
-                        <img src="/static/images/first.png" width="70"><br>
-                        <div class="d-flex flex-column ml-2"><span>{product_name}</span><span class="text-black-50">perfume details:{Product_details}</span><span>price:{product_price}</span><span class="ratings"><i class="fa fa-star"></i><i class="fa fa-star"></i><i class="fa fa-star"></i><i class="fa fa-star"></i></span></div>
-                    </div>
-                </div>
-            </div>
-        """
-    return content
 
 
 
@@ -194,6 +185,7 @@ async def category_id():
     return msg
 
 
+
 @app.post("/insert_product_details/")
 async def category_id(product:Product_details):
     msg= await insert_product_details(product)
@@ -208,7 +200,7 @@ async def category_id(product:Product_details):
 async def list_product(Category:Product_category):
     print('category:',Category.category)
     msg= await list_product_by_category(Category.category)
+    if isinstance(msg,dict):
+        return """ <h3>no item found.........</h3> """
     htmlcode=await create_new_html(msg)
     return htmlcode
-
-

@@ -7,29 +7,53 @@ function geturl(){
 
 
 $(document).ready(function () {
+    $("#loginbutton").click(function (event) {
+        event.preventDefault(); // Prevent form from submitting traditionally
+  
+        let Username = $("#Username").val();
+        let Password = $("#Password").val();
+  
+        $.ajax({
+          url: geturl()+"/adminauth", // FastAPI backend endpoint
+          type: "POST",
+          contentType: "application/json",
+          data: JSON.stringify({ username: Username, password: Password }),
+          success: function (response) {
+            alert("Login Successful: " + response.message);
+            sessionStorage.setItem("jwt",response.token);
+            console.log(response);
+          },
+          error: function (xhr, status, error) {
+            alert("Login Failed: " + xhr.responseText);
+            console.error(xhr, status, error);
+          },
+        });
+      });
  
+
+      $("#checkjwt").click(function(e){
+        e.preventDefault();
+        const token = sessionStorage.getItem("jwt");
+
+        $.ajax({
+            url: "http://127.0.0.1:8000/protected",
+            type: "GET",
+            headers: {
+                "Authorization": "Bearer " + token
+            },
+            success: function(response) {
+                console.log("Response:", response);
+                $("#check").text(response.message);
+            },
+            error: function(xhr) {
+                console.error("Error:", xhr.responseJSON.detail);
+                $("#check").text(xhr.responseJSON.detail);
+            }
+        });
+
+      });
    // retrieve_buynow_storage()
 });
 
 
 
-function retrieve_buynow_storage(){
-    const key = 'buynow_product';
-    const storedValue = localStorage.getItem(key);
-    if (storedValue) {
-        let parsedValue = JSON.parse(storedValue);
-
-        // Alter each data field
-     
-        
-       // Increase price by 5
-        // alert('Product Name: ' +  parsedValue.product_name  + '\n' +
-        //     'Image Source: ' + parsedValue.product_src + '\n' +
-        //     'Description: ' + parsedValue.product_description  + '\n' +
-        //     'Price: ' + parsedValue.product_price);
-
-    } else {
-        console.log(`${key} does not exist.`);
-    }
-
-}

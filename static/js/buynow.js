@@ -5,6 +5,7 @@ function geturl(){
 }
 
 $(document).ready(function () {
+    
     append_cart_item();
 
     //retrieve_buynow_storage()
@@ -19,32 +20,46 @@ $(document).ready(function () {
         $("#count").text(`${c}`);
     });
 
+    var countries = [
+        { id: "US", text: "United States" },
+        { id: "CA", text: "Canada" },
+        { id: "GB", text: "United Kingdom" },
+        { id: "IN", text: "India" },
+        { id: "AU", text: "Australia" },
+        { id: "DE", text: "Germany" },
+        { id: "FR", text: "France" },
+        { id: "IT", text: "Italy" },
+        { id: "ES", text: "Spain" },
+        { id: "MX", text: "Mexico" },
+        // Add more countries here as needed
+    ];
+
+    // Populate the country dropdown using the static list
+    var countrySelect = $('#country');
+    countries.forEach(function(country) {
+        countrySelect.append('<option value="' + country.id + '">' + country.text + '</option>');
+    });
 
 });
 
 
 
 
-// function retrieve_buynow_storage(){
-//     const key = 'buynow_product';
-//     const storedValue = localStorage.getItem(key);
-//     if (storedValue) {
-//         let parsedValue = JSON.parse(storedValue);
+function retrieve_buynow_storage(){
+    const key = 'buynow_product';
+    const storedValue = localStorage.getItem(key);
+    if (storedValue) {
+        let parsedValue = JSON.parse(storedValue);
+        alert('Product Name: ' +  parsedValue.product_name  + '\n' +
+            'Image Source: ' + parsedValue.product_src + '\n' +
+            'Description: ' + parsedValue.product_description  + '\n' +
+            'Price: ' + parsedValue.product_price);
 
-//         // Alter each data field
-     
-        
-//        // Increase price by 5
-//         alert('Product Name: ' +  parsedValue.product_name  + '\n' +
-//             'Image Source: ' + parsedValue.product_src + '\n' +
-//             'Description: ' + parsedValue.product_description  + '\n' +
-//             'Price: ' + parsedValue.product_price);
+    } else {
+        console.log(`${key} does not exist.`);
+    }
 
-//     } else {
-//         console.log(`${key} does not exist.`);
-//     }
-
-// }
+}
 
 function minimize_price(){
     const key = 'buynow_product';
@@ -52,6 +67,9 @@ function minimize_price(){
     if (product.product_count != 1)
     {
         product.product_count -=1;
+        product.product_total -=product.product_price;
+        $("#subtotal").text(`${product.product_total}`);
+        $("#total").text(`${product.product_total}`);
     }
     localStorage.setItem(key, JSON.stringify(product));
     return product.product_count;
@@ -62,15 +80,21 @@ function maxize_price(){
     const key = 'buynow_product';
     const product = JSON.parse(localStorage.getItem(key));
     product.product_count +=1;
+    product.product_total +=product.product_price;
+    $("#subtotal").text(`${product.product_total}`);
+    $("#total").text(`${product.product_total}`);
     localStorage.setItem(key, JSON.stringify(product));
     return product.product_count;
 }
+
 
 function append_cart_item(){
     const key = 'buynow_product';
     const storedValue = localStorage.getItem(key);
     if (storedValue) {
         let parsedValue = JSON.parse(storedValue);
+        $("#subtotal").text(`${parsedValue.product_total}`);
+        $("#total").text(`${parsedValue.product_total}`);
         
         // alert('Product Name: ' +  parsedValue.product_name  + '\n' +
         //     'Image Source: ' + parsedValue.product_src + '\n' +
@@ -87,13 +111,17 @@ function append_cart_item(){
                                 <p class="mb-0"><b>${parsedValue.product_name}</b></p>
                                 <span>Black</span> <span>${parsedValue.product_description}</span>
                                 <div class="d-flex align-items-center mt-3">
-                                    <button id="max" class="btn btn-primary btn-sm me-2">Increase</button>
+                                    <button id="max" class="btn btn-primary btn-sm me-2">+</button>
                                     <div id="count">1</div>
-                                    <button id="min" class="btn btn-secondary btn-sm ms-2">Decrease</button>
+                                    <button id="min" class="btn btn-secondary btn-sm ms-2">-</button>
                                 </div>
-                                <p class="mt-2">Qty: <span>1</span></p>
                             </div>
                         </div>
+                        </div>
+
+                        
+            
+                        
     `
     $("#card_item").html(carditem);
 
@@ -109,14 +137,14 @@ function retrieve_buynow_storage(){
     const storedValue = localStorage.getItem(key);
     if (storedValue) {
         let parsedValue = JSON.parse(storedValue);
-        
-        // alert('Product Name: ' +  parsedValue.product_name  + '\n' +
-        //     'Image Source: ' + parsedValue.product_src + '\n' +
-        //     'Description: ' + parsedValue.product_description  + '\n' +
-        //     'Price: ' + parsedValue.product_price);
+        alert('Product Name: ' +  parsedValue.product_name  + '\n' +
+            'Image Source: ' + parsedValue.product_src + '\n' +
+            'Description: ' + parsedValue.product_description  + '\n' +
+            'Price: ' + parsedValue.product_price);
 
     } else {
         console.log(`${key} does not exist.`);
     }
 
 }
+

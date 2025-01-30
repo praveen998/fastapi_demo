@@ -16,6 +16,24 @@
         .max-h-select {
             max-height: 300px;
         }
+        #cart {
+    position: relative;
+    display: inline-block;
+    font-size: 24px;
+    padding: 10px;
+}
+
+#cart-count {
+    position: absolute;
+    top: -5px;
+    right: -10px;
+    background-color: red;
+    color: white;
+    font-size: 14px;
+    padding: 5px;
+    border-radius: 50%;
+}
+
     </style>
 </head>
 <body>
@@ -27,6 +45,11 @@
             <a href="#home">Home</a>
             <a href="#about">About</a>
             <a href="#contact">Contact</a>
+            <div id="cart">
+                <i class="fa fa-shopping-cart"></i> <!-- Cart icon -->
+                <span id="cart-count" class="badge">5</span> <!-- Cart item count -->
+              </div>
+              
         </nav>
     </div>
     <!-- Content -->
@@ -63,7 +86,6 @@
             <div class="row">
                 <div class="container-fluid bg-trasparent my-4 p-3" style="position: relative;">
                     <div id="grid-container" class="row row-cols-1 row-cols-xs-2 row-cols-sm-2 row-cols-lg-4 g-3">
-
                     </div>
                 </div>
             </div>

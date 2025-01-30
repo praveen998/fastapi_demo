@@ -2,11 +2,63 @@ from aiomysql import create_pool,Error,DictCursor
 from fastapi import Depends
 import os 
 from dotenv import load_dotenv
+from sqlalchemy import Column, Integer, String, Boolean,ForeignKey,JSON
+from app.database import Base
+import json
+
+
+class User(Base):
+    __tablename__ = "users"
+
+    id = Column(Integer, primary_key=True, index=True)
+    name = Column(String(50), index=True)
+    email = Column(String(100), unique=True, index=True)
+    is_active = Column(Boolean, default=True)
+
+
+class Product_categories(Base):
+      __tablename__ = "product_categories"
+
+      id=Column(Integer,primary_key=True,index=True)
+      categories=Column(String(100),nullable=False,index=True)
+
+
+class Product_details(Base):
+      __tablename__ = "product_details"
+
+      id = Column(Integer,primary_key=True,index=True)
+      product_name= Column(String(100),unique=True,nullable=False,index=True)
+      product_description= Column(String(500))
+      product_price=Column(JSON)
+      product_img_url=Column(String(100),unique=True)
+      category_id=Column(Integer,ForeignKey("product_categories.id"))
+
+
+class Client_payment(Base):
+      __tablename__ = "client_payment"
+
+      id=Column(Integer,primary_key=True,index=True)
+      payment_id=Column(String(100),unique=True,nullable=False,index=True)
+      customer_name=Column(String(100))
+      customer_phone=Column(String(15))
+      customer_email=Column(String(100))
+      customer_country=Column(String(100))
+      customer_state=Column(String(100))
+      customer_address=Column(String(200))
+
+
+class Payment_details(Base):
+      __tablename__ = "payment_details"
+
+      id =Column(Integer,primary_key=True,index=True)
+      product_purchase_list=Column(JSON)
+      total_amount=Column(Integer)
+      client_payment_id=Column(String(100),ForeignKey("client_payment.payment_id"))
+
+
 
 
 load_dotenv()
-
-
 #Database pool (async)
 '''
 DB_CONFIG={
@@ -106,7 +158,7 @@ async def insert_product_details(product_detais):
                         async with connection.cursor() as cursor:
                                 await cursor.execute(
                                     "insert into product_details(category_id,product_name,product_description,product_price) values(%s,%s,%s,%s)",
-                                    (result['id'],product_detais.product_name,product_detais.product_description,product_detais.product_price))
+                                    (result['id'],product_detais.product_name,product_detais.product_description,json.dumps(product_detais.product_price)))
                                 await connection.commit()
                                 return {"success": True, "message": "categories inserted successfully"}
             except Error as e:
@@ -138,5 +190,4 @@ async def list_product_by_category(category:str):
             
 
 
-      
 #d= list_perfume_by_category('car perfumes')

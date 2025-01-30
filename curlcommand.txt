@@ -9,13 +9,21 @@ curl -X POST "http://127.0.0.1:8000/employee/" \
 curl -X POST "http://127.0.0.1:8000/insert_category/" \
 -H "Content-Type: application/json" \
 -d '{
-  "category": "hand wash"
+  "category": "floor cleaner"
+}'
+
+curl -X POST "http://127.0.0.1:8000/adminauth/" \
+-H "Content-Type: application/json" \
+-d '{
+  "username": "praveen",
+  "password":"1234"
 }'
 
 
 
-
 curl -X GET "http://127.0.0.1:8000/list_category"
+
+curl -X GET "http://127.0.0.1:8000/protected"
 
 
 curl -X POST "http://127.0.0.1:8000/employee/{"name": "100","email": "johndoe@example.com","age":"50"}"
@@ -26,10 +34,10 @@ curl -X POST "http://127.0.0.1:8000/employee/{"name": "100","email": "johndoe@ex
 curl -X POST "http://127.0.0.1:8000/insert_product_details/" \
 -H "Content-Type: application/json" \
 -d '{
-  "category_name": "car perfumes",
-  "product_name": "car fresh",
-  "product_description":"car freshnes",
-  "product_price":50
+  "category_name": "floor cleaner",
+  "product_name": "harpic 100ml",
+  "product_description":"very good",
+  "product_price":{"inr":100,"uae":10}
 }'
 
 
