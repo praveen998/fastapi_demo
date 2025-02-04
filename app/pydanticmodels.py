@@ -21,6 +21,7 @@ class Product_details(BaseModel):
     product_price:Dict[str,Any]
 
 
+
 class product_html(BaseModel):
     id:Optional[int]=None
     category_id:Optional[int] =None

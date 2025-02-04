@@ -121,7 +121,7 @@ function append_cart_items() {
                             
                                     <span class="mb-0 text-price d-block">${item.product_price}</span>
                                     <p class="pname mb-0">${item.product_name}</p>
-                                    <span>Black</span> <span>${item.product_description}</span>
+                                    <span>${item.product_description}</span>
                                     <div class="d-flex align-items-center mt-3">
                                         <button class="max btn btn-primary btn-sm me-2">+</button>
                                          <div class="count mt-2">${item.product_count}</div>

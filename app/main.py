@@ -1,4 +1,4 @@
-from fastapi import FastAPI,HTTPException,Request
+from fastapi import FastAPI,HTTPException,Request,Form, File, UploadFile
 from fastapi.responses import PlainTextResponse
 from fastapi.responses import HTMLResponse
 from fastapi.responses import FileResponse
@@ -10,13 +10,19 @@ from dotenv import load_dotenv
 import mimetypes
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi import Depends
-from app.models import init_db,close_db,insert_category,return_all_category,list_product_by_category
+from app.models import init_db,close_db,insert_category,return_all_category,list_product_by_category,delete_category,insert_product_details
 from app.models import return_category_id,insert_product_details,pool
 from app.pydanticmodels import Product_category,Product_category,Employee,Product_details,Admin
-from app.utils import create_new_html,verify_password,verify_admin_jwt_token,create_jwt_token
+from app.utils import create_new_html,verify_password,verify_admin_jwt_token,create_jwt_token,convert_products_to_dict
 from fastapi.templating import Jinja2Templates
 from fastapi.staticfiles import StaticFiles
 from app.database import init_ormdb
+from pydantic import BaseModel
+from typing import Optional, Dict, List
+import json
+import httpx
+
+
 app=FastAPI()
 
 
@@ -95,6 +101,9 @@ async def create_eployee(emp:Employee):
 async def adminpage(request: Request):
     return templates.TemplateResponse("adminlogin.html", {"request": request})
 
+
+
+
 #addmin authentication--------------------------------------------------------
 @app.post("/adminauth")
 async def adminpage(admin:Admin):
@@ -108,14 +117,18 @@ async def adminpage(admin:Admin):
           return {"message": "Login successful", "status": "success","token": token}
     else:
           raise HTTPException(status_code=401, detail="Invalid username or password")
-#--- -------------------------------------------------------------------------
+#--- ---------------------------------------------------------------------------
+
+
+@app.get("/dashboard",response_class=HTMLResponse)
+async def dashboard(request: Request):
+    return templates.TemplateResponse("dashboard.html", {"request": request})
 
 
 @app.get("/protected")
 async def protected_route(user: dict = Depends(verify_admin_jwt_token)):
     print(user)
     return {"message": "Access granted", "user": user}
-
 
 
 
@@ -148,13 +161,6 @@ def upload():
 
 
 
-#return plaintext response--------------------
-@app.get("/plaintext",response_class=PlainTextResponse)
-def plaintext():
-    return "Hello world"
-
-
-
 @app.get("/media")
 def getmedia():
     file_path="media/kali-linux-3840x2160-18058.jpg"
@@ -165,10 +171,20 @@ def getmedia():
 
 
 @app.post("/insert_category/")
-async def new_category(cate:Product_category):
+async def new_category(cate:Product_category,user: dict = Depends(verify_admin_jwt_token)):
     msg= await insert_category(cate.category)
     print(msg)
+    print(user)
     return msg
+
+
+@app.post("/delete_category/")
+async def delete_product_category(cate:Product_category,user: dict = Depends(verify_admin_jwt_token)):
+    msg= await delete_category(cate.id)
+    print(msg)
+    print(user)
+    return msg
+
 
 
 @app.get("/list_category")
@@ -204,3 +220,58 @@ async def list_product(Category:Product_category):
         return """ <h3>no item found.........</h3> """
     htmlcode=await create_new_html(msg)
     return htmlcode
+
+
+
+@app.post("/list_products_edit_product/")
+async def list_product_edit_product(Category:Product_category,user: dict = Depends(verify_admin_jwt_token)):
+    print('category:',Category.category)
+    msg= await list_product_by_category(Category.category)
+    product_dict= convert_products_to_dict(msg)
+    if isinstance(msg,dict):
+        raise HTTPException(status_code=401, detail="empty proudcts..")
+    else:
+       # htmlcode=await create_new_html(msg)
+        return product_dict
+
+
+
+@app.post("/add_new_product/")
+async def add_product(
+    product_name: str = Form(...),
+    product_description: Optional[str] = Form(None),
+    india_price: float = Form(...),
+    uae_price: float = Form(...),
+    category: str = Form(...),
+    product_img: UploadFile = File(...)
+):  
+    product={
+        "product_name": product_name,
+        "product_description": product_description,
+        "product_price": {
+            "India": india_price,
+            "UAE": uae_price
+        },
+        "category": category,
+        "product_image_url": product_img.filename
+    }
+    msg=await insert_product_details(product)
+    print(type(product['product_name']))
+    print(type(product['category']))
+    print(type(product['product_image_url']))
+    print(type(json.dumps(product['product_price'])))
+    print(type(product['product_description']))
+    return msg
+
+
+
+
+@app.get("/geolocation-by-ip")
+async def read_geolocation(request: Request):
+    ip = request.client.host  # Get the client's IP address
+    api_url = f"http://ip-api.com/json/{ip}?fields=country,lat,lon,regionName,city"
+    async with httpx.AsyncClient() as client:
+        response = await client.get(api_url)
+        data = response.json()
+    return data
+

@@ -2,8 +2,8 @@
 function seturl() {
     localStorage.setItem("fasturl", "http://127.0.0.1:8000");
 }
-seturl();
 
+seturl();
 
 $.ajax({
     url: geturl() + "/list_category",
@@ -25,6 +25,7 @@ $.ajax({
 
 
 $(document).ready(function () {
+
     loadCart();
     saveCart();
     update_cart_logo();
@@ -132,11 +133,9 @@ $(document).ready(function () {
                     addToCart(productName, productImageSrc, productDescription, productPrice);
                     update_cart_logo();
                     window.location.href = geturl() + "/cart";
-
-
                 });
-
             },
+
             error: function (xhr, status, error) {
                 console.error("Error fetching text:", error);
                 $('#textContent').text("Error fetching text. Please try again.");
@@ -277,9 +276,12 @@ function iterateCartItems() {
     }
 }
 
+
+
 function update_cart_logo() {
     loadCart();
     len = cart.length;
     console.log(len);
     $("#cart-count").text(`${len}`);
 }
+

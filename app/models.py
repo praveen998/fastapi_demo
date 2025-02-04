@@ -18,9 +18,9 @@ class User(Base):
 
 class Product_categories(Base):
       __tablename__ = "product_categories"
-
+      
       id=Column(Integer,primary_key=True,index=True)
-      categories=Column(String(100),nullable=False,index=True)
+      categories=Column(String(100),unique=True,nullable=False,index=True)
 
 
 class Product_details(Base):
@@ -29,8 +29,8 @@ class Product_details(Base):
       id = Column(Integer,primary_key=True,index=True)
       product_name= Column(String(100),unique=True,nullable=False,index=True)
       product_description= Column(String(500))
-      product_price=Column(JSON)
-      product_img_url=Column(String(100),unique=True)
+      product_price=Column(JSON,nullable=False)
+      product_img_url=Column(String(100))
       category_id=Column(Integer,ForeignKey("product_categories.id"))
 
 
@@ -56,8 +56,6 @@ class Payment_details(Base):
       client_payment_id=Column(String(100),ForeignKey("client_payment.payment_id"))
 
 
-
-
 load_dotenv()
 #Database pool (async)
 '''
@@ -72,6 +70,7 @@ DB_CONFIG={
         }
 '''
 
+
 DB_CONFIG={
         "host":os.getenv('host'),  # IP address without 'http://'
         "port":int(os.getenv('port')),
@@ -83,7 +82,6 @@ DB_CONFIG={
         }
 
 pool =None
-
 
 async def init_db():
       global pool
@@ -114,6 +112,23 @@ async def insert_category(categories:str):
             return {"success": False, "message": f"Unexpected error: {e}"}
 
 
+#delete category by id-----------------------------------------------------------------------------
+async def delete_category(id:int):
+      global pool
+      try:
+            async with pool.acquire() as connection:
+                  async with connection.cursor() as cursor:
+                        await cursor.execute(
+                            "delete from product_categories where id=%s",(id)
+                        )
+                        await connection.commit()
+                        return {"success": True, "message": "categories deleted successfully"}
+      except Error as e:
+            return {"success": False, "message": f"Database error: {e}"}
+      except Exception as e:
+            return {"success": False, "message": f"Unexpected error: {e}"}
+
+
 
 #return all categories of product------------------------------------------------------------------------
 async def return_all_category():
@@ -121,7 +136,7 @@ async def return_all_category():
       try:
             async with pool.acquire() as connection:
                   async with connection.cursor(DictCursor) as cursor:
-                        await cursor.execute("select categories from product_categories")
+                        await cursor.execute("select id,categories from product_categories")
                         result=await cursor.fetchall()
                         return result
       except Error as e:
@@ -151,14 +166,14 @@ async def return_category_id(category:str):
 #insert product details-----------------------------------------------------------------------------------------------------------------------
 async def insert_product_details(product_detais):
       global pool
-      result=await return_category_id(product_detais.category_name)
+      result=await return_category_id(product_detais['category'])
       if result:
             try:
                   async with pool.acquire() as connection:
                         async with connection.cursor() as cursor:
                                 await cursor.execute(
-                                    "insert into product_details(category_id,product_name,product_description,product_price) values(%s,%s,%s,%s)",
-                                    (result['id'],product_detais.product_name,product_detais.product_description,json.dumps(product_detais.product_price)))
+                                    "insert into product_details(product_name,product_description,product_price,product_img_url,category_id) values(%s,%s,%s,%s,%s)",
+                                    (product_detais['product_name'],product_detais['product_description'],json.dumps(product_detais['product_price']),product_detais['product_image_url'],result['id']))
                                 await connection.commit()
                                 return {"success": True, "message": "categories inserted successfully"}
             except Error as e:
@@ -178,7 +193,7 @@ async def list_product_by_category(category:str):
             try:
                   async with pool.acquire() as connection:
                         async with connection.cursor(DictCursor) as cursor:
-                              await cursor.execute("select product_name,product_description,product_price from product_details where category_id = %s ",(result['id']))
+                              await cursor.execute("select product_name,product_description,product_price,product_img_url from product_details where category_id = %s ",(result['id']))
                               data=await cursor.fetchall()
                               return data
             except Error as e:
