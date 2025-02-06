@@ -44,6 +44,7 @@ $(document).ready(function () {
                         <input type="text" id="newCategory" class="form-control" placeholder="Add New Category">
                         <button class="btn btn-success" onclick="addCategory()">➕ Add</button>
                     </div>
+                        
                         <!-- Category Table -->
                         <table class="table table-bordered table-striped">
                             <thead class="table-primary">
@@ -93,7 +94,9 @@ $(document).ready(function () {
                                     </select>
                                 </div><br><br>
                                 <div class="mb-3">
-                                 <img id="preview" alt="Image Preview"> 
+                                    <label for="product_img" class="form-label fw-bold">Upload Product Image:</label>
+                                    <input type="file" class="form-control" id="product_img" name="product_img" accept="image/*">
+                                    <img id="preview" alt="Image Preview">
 
                                 </div><br><br>
     
