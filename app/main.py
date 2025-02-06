@@ -264,6 +264,22 @@ async def add_product(
     return msg
 
 
+@app.post("/update_product/")
+async def update_product(
+    name: str = Form(...),
+    desc: str = Form(...),
+    price: str = Form(...),
+    image: Optional[UploadFile] = File(None)
+):
+    try:
+        price_data = json.loads(price)
+    except json.JSONDecodeError:
+        raise HTTPException(status_code=400, detail="Invalid JSON format in price field")
+    if image:
+        image_data = await image.read()
+        image_path = f"data:image/{image.filename.split('.')[-1]};base64,{image_data.hex()}"
+ 
+    return {"message": "Product updated successfully"}
 
 
 @app.get("/geolocation-by-ip")

@@ -29,38 +29,54 @@ $(document).on("change", ".edit_product_category", function () {
 });
 
 
+// $(document).on("click", ".save", function() {
+//     let row = $(this).closest("tr");
+//     //let id = row.data("id");
+//     let name = row.find(".name").val();
+//     let desc = row.find(".desc").val();
+//     let price;
+//     try {
+//         price = JSON.parse(row.find(".price").val());
+//     } catch (e) {
+//         alert("Invalid JSON format in price field");
+//         return;
+//     }
+//     let image = row.find(".image-upload")[0].files[0];
+//     let formData = new FormData();
+//     formData.append("name", name);
+//     formData.append("desc", desc);
+//     formData.append("price", JSON.stringify(price));
 
-$(document).on("click", ".save", function() {
-    let row = $(this).closest("tr");
-    let id = row.data("id");
-    let name = row.find(".name").val();
-    let desc = row.find(".desc").val();
-    let price;
-    alert(`${name}`);
-    try {
-        price = JSON.parse(row.find(".price").val());
-    } catch (e) {
-        alert("Invalid JSON format in price field");
-        return;
-    }
-    let image = row.find(".image-upload")[0].files[0];
-    let imagePath = products[id][3];
+//     if (image) {
+//         formData.append("image", image);
+//         let reader = new FileReader();
+//         reader.onload = function(e) 
+//         {
+//             row.find("img").attr("src", e.target.result);
+           
+//         };
+//         reader.readAsDataURL(image);
+//     } 
+//     $.ajax({
+//         url: geturl()+`/update_product/`,
+//         type: "POST",
+//         data: formData,
+//         processData: false, // Prevent jQuery from processing the data
+//         contentType: false, // Prevent jQuery from setting content-type
+//         success: function(response) {
+//             if (response.message === "Product updated successfully") {
+//                // row.find("img").attr("src", response.product[3]); // Update image preview
+//                 alert("Product updated successfully!");
+//             } else {
+//                 alert("Error updating product: " + response.detail);
+//             }
+//         },
+//         error: function(xhr) {
+//             alert("Error updating product: " + xhr.responseText);
+//         }
+//     });
+// });
 
-    if (image) {
-        let reader = new FileReader();
-        reader.onload = function(e) 
-        {
-            row.find("img").attr("src", e.target.result);
-            products[id] = [name, desc, price, e.target.result];
-            alert("Product updated successfully!");
-        };
-        reader.readAsDataURL(image);
-    } 
-    else {
-        products[id] = [name, desc, price, imagePath];
-        alert("Product updated successfully!");
-    }
-});
 
 
 $(document).on("click", ".delete", function() {
@@ -69,8 +85,6 @@ $(document).on("click", ".delete", function() {
     alert(`${name}`);
     
 });
-
-
 
 });
 
@@ -104,7 +118,6 @@ function loadTable(data) {
                            <input type="file" class="form-control image-upload mt-2" accept="image/*">
                        </td>   
                        <td class="text-center">
-                           <button class="btn btn-success save">Save</button>
                            <button class="btn btn-danger delete">Delete</button>
                        </td>
                    </tr>`;
