@@ -11,8 +11,8 @@ import mimetypes
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi import Depends
 from app.models import init_db,close_db,insert_category,return_all_category,list_product_by_category,delete_category,insert_product_details
-from app.models import return_category_id,insert_product_details,pool
-from app.pydanticmodels import Product_category,Product_category,Employee,Product_details,Admin
+from app.models import return_category_id,insert_product_details,pool,delete_product_by_name
+from app.pydanticmodels import Product_category,Product_category,Employee,Product_details,Admin,Delete_product
 from app.utils import create_new_html,verify_password,verify_admin_jwt_token,create_jwt_token,convert_products_to_dict
 from fastapi.templating import Jinja2Templates
 from fastapi.staticfiles import StaticFiles
@@ -36,7 +36,7 @@ app.mount("/static", StaticFiles(directory="static"), name="static")
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],  # Replace "*" with specific domains if needed
+    allow_origins=["127.0.0.1","https://3b56-2402-3a80-1e1b-2c6-672b-d7c1-d82c-c8d1.ngrok-free.app"],  # Replace "*" with specific domains if needed
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -264,22 +264,15 @@ async def add_product(
     return msg
 
 
-@app.post("/update_product/")
-async def update_product(
-    name: str = Form(...),
-    desc: str = Form(...),
-    price: str = Form(...),
-    image: Optional[UploadFile] = File(None)
-):
-    try:
-        price_data = json.loads(price)
-    except json.JSONDecodeError:
-        raise HTTPException(status_code=400, detail="Invalid JSON format in price field")
-    if image:
-        image_data = await image.read()
-        image_path = f"data:image/{image.filename.split('.')[-1]};base64,{image_data.hex()}"
- 
-    return {"message": "Product updated successfully"}
+@app.post("/delete_product/")
+async def delete_product(req:Delete_product,user: dict = Depends(verify_admin_jwt_token)):
+    if req:
+        print(req.product_name)
+        msg=await delete_product_by_name(req.product_name)
+        return msg
+    else:
+        raise HTTPException(status_code=401, detail="no product name given")
+
 
 
 @app.get("/geolocation-by-ip")

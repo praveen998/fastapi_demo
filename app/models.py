@@ -204,5 +204,20 @@ async def list_product_by_category(category:str):
             return {"success": False, "message": "no category found"}
             
 
+async def delete_product_by_name(product_name:str):
+      global pool
+      try:
+            async with pool.acquire() as connection:
+                        async with connection.cursor() as cursor:
+                              await cursor.execute("delete from product_details where product_name=%s",(product_name))
+                              await connection.commit()
+                              return {"success": True, "message": "product deleted successfully"}
+      except Error as e:
+                  return {"success": False, "message": f"Database error: {e}"}
+      except Exception as e:
+                  return {"success": False, "message": f"Unexpected error: {e}"}
+
+
+
 
 #d= list_perfume_by_category('car perfumes')

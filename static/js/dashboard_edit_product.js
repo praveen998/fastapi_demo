@@ -4,12 +4,12 @@ function geturl() {
 }
 
 
-
+let selectedValue;
 
 $(document).ready(function () {
    
 $(document).on("change", ".edit_product_category", function () {
-    const selectedValue = $(this).val(); // Get the selected value
+    selectedValue = $(this).val(); // Get the selected value
     //alert(`${selectedValue}`);
     loadTable(selectedValue);
     // $.ajax({
@@ -82,7 +82,26 @@ $(document).on("change", ".edit_product_category", function () {
 $(document).on("click", ".delete", function() {
     let row = $(this).closest("tr");
     let name = row.find(".name").val();
-    alert(`${name}`);
+    //alert(`${name}`);
+    const token = sessionStorage.getItem("jwt");
+   
+     $.ajax({
+            url: geturl()+"/delete_product/",
+            type: "POST",
+            headers: {
+                "Authorization": "Bearer " + token
+            },
+            contentType: "application/json",
+            data: JSON.stringify({ product_name: name }),
+            success: function (response) {
+              alert(`${response.message}`);
+              loadTable(selectedValue);
+            },
+            error: function (xhr, status, error) {
+                console.error("Error fetching text:", error);
+                alert("Error fetching text. Please try again.");
+            }
+        });
     
 });
 
@@ -110,18 +129,17 @@ function loadTable(data) {
                let tbody = "";
                $.each(products, function(key, product) {
                    tbody += `<tr data-id="${key}">
-                       <td><input type="text" class="form-control name" value="${product[0]}"></td>
-                       <td><textarea class="form-control desc">${product[1]}</textarea></td>
-                       <td><textarea class="form-control price">${JSON.stringify(product[2])}</textarea></td>
+                       <td><input type="text" class="form-control name" value="${product[0]}" disabled></td>
+                       <td><textarea disabled class="form-control desc">${product[1]}</textarea></td>
+                       <td><textarea disabled class="form-control price">${JSON.stringify(product[2])}</textarea></td>
                        <td class="text-center">
-                           <img src="${product[3]}" class="img-thumbnail" alt="Product Image">
-                           <input type="file" class="form-control image-upload mt-2" accept="image/*">
+                           <img src="https://nibhasitsolutions.s3.ap-south-1.amazonaws.com/kali-linux-3840x2160-18058.jpg" class="img-thumbnail" alt="Product Image">
                        </td>   
                        <td class="text-center">
                            <button class="btn btn-danger delete">Delete</button>
                        </td>
                    </tr>`;
-               });
+               });  
            
                $("#productTable tbody").html(tbody);
             },

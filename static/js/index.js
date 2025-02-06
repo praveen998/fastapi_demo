@@ -3,6 +3,22 @@ function seturl() {
     localStorage.setItem("fasturl", "http://127.0.0.1:8000");
 }
 
+function geturl() {
+    url = localStorage.getItem("fasturl");
+    return url;
+}
+
+
+function setselectedvalue(value) {
+    localStorage.setItem("selectedValue", `${value}`);
+}
+
+function getselectedvalue() {
+    selectedValue = localStorage.getItem("selectedValue");
+    return selectedValue;
+}
+
+
 seturl();
 
 $.ajax({
@@ -12,25 +28,31 @@ $.ajax({
         const selectElement = $("#styledSelect");
         selectElement.empty(); // Clear existing options
         // Add new options dynamically
+        selectElement.append( `<option value="#">Select Category</option>`)
+        if (getselectedvalue() === null) {
+            setselectedvalue(data[0].categories);
+           
+        }
         data.forEach(option => {
             selectElement.append(
                 `<option value="${option.categories}">${option.categories}</option>`
             );
         });
+        generate_product_cards(getselectedvalue());
     },
     error: function () {
         alert("Failed to load options. Please try again.");
     }
 });
 
-
+$("#styledSelect").val("YourCategoryValue").change();
 $(document).ready(function () {
 
     loadCart();
     saveCart();
     update_cart_logo();
 
-    $("#cart").click(function(){
+    $("#cart").click(function () {
         window.location.href = geturl() + "/cart";
     });
 
@@ -47,16 +69,35 @@ $(document).ready(function () {
         iterateCartItems();
     });
 
-    const data = { "category": "body perfume" };
+    //submit selection boc category to backend------------------------------------
+    $("#styledSelect").on("change", function () {
+        selectedValue = $(this).val(); // Get the selected value
+        // Prepare data to send
+        if (selectedValue !== "Select Category")
+        {
+        setselectedvalue(selectedValue);
+        generate_product_cards(selectedValue);
+        }
 
+    });
+
+
+});
+
+
+
+function generate_product_cards(selectedV) {
+    const data = { "category": `${selectedV}` };
+
+    // Send data to the backend using AJAX
     $.ajax({
-        url: geturl() + "/list_products/", // Update URL if hosted else where
-        method: "POST",
+        url: geturl() + "/list_products/",
+        type: "POST",
         contentType: "application/json",
         data: JSON.stringify(data),
-        success: function (data) {
-            // Append fetched text to the div
-            $('#grid-container').html(data);
+        success: function (response) {
+            $('#grid-container').html(response);
+
             $('#grid-container').on('click', '#buynow', function (e) {
                 e.preventDefault();
                 var closestCard = $(this).closest('.card');
@@ -67,12 +108,12 @@ $(document).ready(function () {
                 var productPrice = parseInt(productPrice.replace(/[₹,]/g, ''));
                 create_buynow_storage(productName, productImageSrc, productPrice, productDescription)
                 window.location.href = geturl() + "/buynow";
+
             });
 
 
-
             $('#grid-container').on('click', '#addcart', function (e) {
-                e.preventDefault()
+                e.preventDefault();
                 var closestCard = $(this).closest('.card');
                 var productName = closestCard.find('[id^="product_name"]').text();
                 var productImageSrc = closestCard.find('[id^="product_image"]').attr('src');
@@ -82,72 +123,17 @@ $(document).ready(function () {
                 addToCart(productName, productImageSrc, productDescription, productPrice);
                 update_cart_logo();
                 window.location.href = geturl() + "/cart";
-
             });
-
         },
+
         error: function (xhr, status, error) {
             console.error("Error fetching text:", error);
             $('#textContent').text("Error fetching text. Please try again.");
-        }
+
+        },
     });
+}
 
-
-    //submit selection boc category to backend------------------------------------
-    $("#styledSelect").on("change", function () {
-        const selectedValue = $(this).val(); // Get the selected value
-        // Prepare data to send
-        const data = { "category": selectedValue };
-
-        // Send data to the backend using AJAX
-        $.ajax({
-            url: geturl() + "/list_products/",
-            type: "POST",
-            contentType: "application/json",
-            data: JSON.stringify(data),
-            success: function (response) {
-                $('#grid-container').html(response);
-
-                $('#grid-container').on('click', '#buynow', function (e) {
-                    e.preventDefault();
-                    var closestCard = $(this).closest('.card');
-                    var productName = closestCard.find('[id^="product_name"]').text();
-                    var productImageSrc = closestCard.find('[id^="product_image"]').attr('src');
-                    var productDescription = closestCard.find('[id^="product_description"]').text();
-                    var productPrice = closestCard.find('[id^="product_price"]').text();
-                    var productPrice = parseInt(productPrice.replace(/[₹,]/g, ''));
-                    create_buynow_storage(productName, productImageSrc, productPrice, productDescription)
-                    window.location.href = geturl() + "/buynow";
-
-                });
-
-
-                $('#grid-container').on('click', '#addcart', function (e) {
-                    e.preventDefault();
-                    var closestCard = $(this).closest('.card');
-                    var productName = closestCard.find('[id^="product_name"]').text();
-                    var productImageSrc = closestCard.find('[id^="product_image"]').attr('src');
-                    var productDescription = closestCard.find('[id^="product_description"]').text();
-                    var productPrice = closestCard.find('[id^="product_price"]').text();
-                    var productPrice = parseInt(productPrice.replace(/[₹,]/g, ''));
-                    addToCart(productName, productImageSrc, productDescription, productPrice);
-                    update_cart_logo();
-                    window.location.href = geturl() + "/cart";
-                });
-            },
-
-            error: function (xhr, status, error) {
-                console.error("Error fetching text:", error);
-                $('#textContent').text("Error fetching text. Please try again.");
-
-            },
-        });
-    });
-
-
-    // Attach click event to Buy Now button
-
-});
 
 
 function create_buynow_storage(productname, productsrc, productprice, productdescription) {
@@ -195,10 +181,7 @@ function create_buynow_storage(productname, productsrc, productprice, productdes
 
 
 
-function geturl() {
-    url = localStorage.getItem("fasturl");
-    return url;
-}
+
 
 let cart = [];
 
