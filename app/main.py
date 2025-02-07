@@ -10,8 +10,8 @@ from dotenv import load_dotenv
 import mimetypes
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi import Depends
-from app.models import init_db,close_db,insert_category,return_all_category,list_product_by_category,delete_category,insert_product_details
-from app.models import return_category_id,insert_product_details,pool,delete_product_by_name
+from app.models import init_db,close_db,insert_category,return_all_category,list_product_by_category,delete_category,insert_product_details,list_product_by_search_name
+from app.models import return_category_id,insert_product_details,pool,delete_product_by_name,return_product_img_url
 from app.pydanticmodels import Product_category,Product_category,Employee,Product_details,Admin,Delete_product
 from app.utils import create_new_html,verify_password,verify_admin_jwt_token,create_jwt_token,convert_products_to_dict
 from fastapi.templating import Jinja2Templates
@@ -51,7 +51,6 @@ AWS_ACCESS_KEY_ID = os.getenv("AWS_ACCESS_KEY_ID")
 AWS_SECRET_ACCESS_KEY = os.getenv("AWS_SECRET_ACCESS_KEY")
 AWS_REGION = os.getenv("AWS_REGION")
 S3_BUCKET_NAME = os.getenv("S3_BUCKET_NAME")
-
 
 
 # Initalize S3 Client
@@ -132,7 +131,6 @@ async def protected_route(user: dict = Depends(verify_admin_jwt_token)):
 
 
 
-
 @app.get("/upload")
 def upload():
     try:
@@ -147,11 +145,11 @@ def upload():
         # Upload to S3
         s3_client.put_object(
             Bucket=S3_BUCKET_NAME,
-            Key=file_name,
+            Key=f"hhhperfumes/{file_name}",
             Body=file_content,
             ContentType=mime_type,
         )
-        file_url = f"https://{S3_BUCKET_NAME}.s3.{s3_client.meta.region_name}.amazonaws.com/{file_name}"
+        file_url = f"https://{S3_BUCKET_NAME}.s3.{s3_client.meta.region_name}.amazonaws.com/hhhperfumes/{file_name}"
 
         return {"message": f"File '{file_url}' uploaded successfully to S3 bucket '{S3_BUCKET_NAME}'."}
     
@@ -222,6 +220,16 @@ async def list_product(Category:Product_category):
     return htmlcode
 
 
+@app.post("/seach_product/",response_class=HTMLResponse)
+async def seach_product(Category:Product_category):
+    print('category:',Category.category)
+    msg=await list_product_by_search_name(Category.category)
+    if isinstance(msg,dict):
+        return """ <h3>no item found.........</h3> """
+    htmlcode=await create_new_html(msg)
+    return htmlcode
+
+
 
 @app.post("/list_products_edit_product/")
 async def list_product_edit_product(Category:Product_category,user: dict = Depends(verify_admin_jwt_token)):
@@ -235,6 +243,29 @@ async def list_product_edit_product(Category:Product_category,user: dict = Depen
         return product_dict
 
 
+async def uploadimage_to_aws(s3client,S3_BUCKET_NAME,product_img):
+        file_content = await product_img.read()
+        file_key = f"hhhperfumes/{product_img.filename}"
+
+        s3client.put_object(
+                Bucket=S3_BUCKET_NAME,
+                Key=file_key,
+                Body=file_content,
+                ContentType=product_img.content_type,
+            )
+        file_url = f"https://{S3_BUCKET_NAME}.s3.{s3_client.meta.region_name}.amazonaws.com/{file_key}"
+        return file_url
+
+
+async def delete_img_from_aws(s3client,S3_BUCKET_NAME,filename):
+    try:
+        file_name = file_name.split("/")[-1]
+        file_name=f"hhhperfumes/{file_name}"
+        s3client.delete_object(Bucket=S3_BUCKET_NAME, Key=filename)
+        return True
+    except Exception as e:
+        return False
+
 
 @app.post("/add_new_product/")
 async def add_product(
@@ -244,7 +275,9 @@ async def add_product(
     uae_price: float = Form(...),
     category: str = Form(...),
     product_img: UploadFile = File(...)
-):  
+): 
+    filename=await uploadimage_to_aws(s3_client,S3_BUCKET_NAME,product_img)
+    print("aws file url:",filename)
     product={
         "product_name": product_name,
         "product_description": product_description,
@@ -253,7 +286,7 @@ async def add_product(
             "UAE": uae_price
         },
         "category": category,
-        "product_image_url": product_img.filename
+        "product_image_url": filename
     }
     msg=await insert_product_details(product)
     print(type(product['product_name']))
@@ -267,8 +300,7 @@ async def add_product(
 @app.post("/delete_product/")
 async def delete_product(req:Delete_product,user: dict = Depends(verify_admin_jwt_token)):
     if req:
-        print(req.product_name)
-        msg=await delete_product_by_name(req.product_name)
+        msg=await delete_product_by_name(req.product_name,s3_client,S3_BUCKET_NAME)
         return msg
     else:
         raise HTTPException(status_code=401, detail="no product name given")

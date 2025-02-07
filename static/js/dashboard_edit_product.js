@@ -133,7 +133,7 @@ function loadTable(data) {
                        <td><textarea disabled class="form-control desc">${product[1]}</textarea></td>
                        <td><textarea disabled class="form-control price">${JSON.stringify(product[2])}</textarea></td>
                        <td class="text-center">
-                           <img src="https://nibhasitsolutions.s3.ap-south-1.amazonaws.com/kali-linux-3840x2160-18058.jpg" class="img-thumbnail" alt="Product Image">
+                           <img src="${product[3]}" class="img-thumbnail" alt="Product Image">
                        </td>   
                        <td class="text-center">
                            <button class="btn btn-danger delete">Delete</button>

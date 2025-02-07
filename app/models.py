@@ -203,19 +203,74 @@ async def list_product_by_category(category:str):
       else:
             return {"success": False, "message": "no category found"}
             
+async def list_product_by_search_name(name:str):
+      global pool
+      print(type(name))
+      try:
+            async with pool.acquire() as connection:
+                  async with connection.cursor(DictCursor) as cursor:
+                        await cursor.execute("select product_name,product_description,product_price,product_img_url from product_details where product_name like %s",(f'%{name}%'))
+                        data=await cursor.fetchall()
+                        return data
+      except Error as e:
+            return {"success": False, "message": f"Database error: {e}"}
+      except Exception as e:
+            return {"success": False, "message": f"Unexpected error: {e}"}
+      else:
+            return {"success": False, "message": "no product found"}
 
-async def delete_product_by_name(product_name:str):
+
+async def return_product_img_url(product_name:str):
       global pool
       try:
             async with pool.acquire() as connection:
-                        async with connection.cursor() as cursor:
-                              await cursor.execute("delete from product_details where product_name=%s",(product_name))
-                              await connection.commit()
-                              return {"success": True, "message": "product deleted successfully"}
+                  async with connection.cursor(DictCursor) as cursor:
+                        await cursor.execute("select product_img_url from product_details where product_name = %s",(product_name))
+                        data=await cursor.fetchall()
+                        return data
       except Error as e:
-                  return {"success": False, "message": f"Database error: {e}"}
+            return {"success": False, "message": f"Database error: {e}"}
       except Exception as e:
-                  return {"success": False, "message": f"Unexpected error: {e}"}
+            return {"success": False, "message": f"Unexpected error: {e}"}
+      else:
+            return {"success": False, "message": "no product found"}
+      
+
+async def delete_img_from_aws(s3client,S3_BUCKET_NAME,filename):
+    print("filename:",filename)
+    try:
+        filename = filename.split("/")[-1]
+        filename=f"hhhperfumes/{filename}"
+        print("filename:",filename)
+        s3client.delete_object(Bucket=S3_BUCKET_NAME,Key=filename)
+        return True
+    except Exception as e:
+        print(e)
+        return False
+
+
+async def delete_product_by_name(product_name:str,s3client,S3_BUCKET_NAME):
+      global pool
+      data=await return_product_img_url(product_name)
+      print(type(data))
+      if isinstance(data,list):
+            status=await delete_img_from_aws(s3client,S3_BUCKET_NAME,data[0]['product_img_url'])
+            print("status:",status)
+      else:
+            return {"success": False, "message": f"Unexpected error: product_img_url not found"}
+      if status:
+            try:
+                  async with pool.acquire() as connection:
+                              async with connection.cursor() as cursor:
+                                    await cursor.execute("delete from product_details where product_name=%s",(product_name))
+                                    await connection.commit()
+                                    return {"success": True, "message": "product deleted successfully"}
+            except Error as e:
+                        return {"success": False, "message": f"Database error: {e}"}
+            except Exception as e:
+                        return {"success": False, "message": f"Unexpected error: {e}"}
+      else:
+            return {"success": False, "message": f"Unexpected error: can't delete product_img"}
 
 
 

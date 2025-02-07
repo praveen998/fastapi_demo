@@ -7,6 +7,7 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script> 
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
     <script src="/static/js/index.js"></script>
     <link href="/static/css/index.css" rel="stylesheet">
     <link href="https://use.fontawesome.com/releases/v5.7.2/css/all.css" rel="stylesheet">
@@ -72,13 +73,29 @@
             <div class="column"></div>
             <div class="column">
                 <div class="container mt-5">
+                   
+                    <div class="row">
                     <label for="styledSelect" class="form-label">Categories:</label>
                     <select class="form-select form-select-lg" id="styledSelect">
                         <option selected>Select Categories</option>
                     </select>
+                    </div>
+                    <div class="bg-white p-2 rounded-lg shadow-md">
+                        <input type="text" id="searchQuery" placeholder="Enter search text..."
+                            class="px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+
+               
+            
+                            <button id="searchBtn"
+                            class="px-2 py-1 text-white bg-blue-500 rounded-lg hover:bg-blue-600 transition">
+                            Search
+                        </button>
+                    </div>
                 </div>
             </div>
-            <div class="column"></div>
+            <div class="column">
+               
+            </div>
         </div>
     </div>
 

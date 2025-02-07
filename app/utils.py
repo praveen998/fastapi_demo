@@ -82,7 +82,7 @@ async def create_new_html(msg):
         htmlcode+=f""" 
                 <div class="col">
                             <div class="card h-100 shadow-sm"> <img id="product_image"
-                                    src="https://nibhasitsolutions.s3.ap-south-1.amazonaws.com/kali-linux-3840x2160-18058.jpg"
+                                    src={prod[3]}
                                     class="card-img-top" alt="...">
                                 <div class="card-body">
                                     <div class="clearfix mb-3"> <span class="float-start badge rounded-pill bg-primary" id="product_name">{prod[0]}

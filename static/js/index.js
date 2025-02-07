@@ -81,6 +81,53 @@ $(document).ready(function () {
 
     });
 
+    $("#searchBtn").click(function(){
+        var query = $("#searchQuery").val();
+        const data = { "category": `${query}` };
+      
+
+        $.ajax({
+            url: geturl()+"/seach_product/",
+            type: "POST",
+            contentType: "application/json",
+            data: JSON.stringify(data),
+            success: function(response) {
+                $('#grid-container').html(response);
+
+                $('#grid-container').on('click', '#buynow', function (e) {
+                    e.preventDefault();
+                    var closestCard = $(this).closest('.card');
+                    var productName = closestCard.find('[id^="product_name"]').text();
+                    var productImageSrc = closestCard.find('[id^="product_image"]').attr('src');
+                    var productDescription = closestCard.find('[id^="product_description"]').text();
+                    var productPrice = closestCard.find('[id^="product_price"]').text();
+                    var productPrice = parseInt(productPrice.replace(/[₹,]/g, ''));
+                    create_buynow_storage(productName, productImageSrc, productPrice, productDescription)
+                    window.location.href = geturl() + "/buynow";
+    
+                });
+
+                $('#grid-container').on('click', '#addcart', function (e) {
+                    e.preventDefault();
+                    var closestCard = $(this).closest('.card');
+                    var productName = closestCard.find('[id^="product_name"]').text();
+                    var productImageSrc = closestCard.find('[id^="product_image"]').attr('src');
+                    var productDescription = closestCard.find('[id^="product_description"]').text();
+                    var productPrice = closestCard.find('[id^="product_price"]').text();
+                    var productPrice = parseInt(productPrice.replace(/[₹,]/g, ''));
+                    addToCart(productName, productImageSrc, productDescription, productPrice);
+                    update_cart_logo();
+                    window.location.href = geturl() + "/cart";
+                });
+            },
+            error: function() {
+                console.error("Error fetching text:", error);
+                $('#textContent').text("Error fetching text. Please try again.");
+
+            }
+        });
+    });
+
 
 });
 
@@ -160,24 +207,6 @@ function create_buynow_storage(productname, productsrc, productprice, productdes
 
 
 }
-
-
-// function retrieve_buynow_storage(){
-//     const key = 'buynow_product';
-//     const storedValue = localStorage.getItem(key);
-//     if (storedValue) {
-//         let parsedValue = JSON.parse(storedValue);
-
-//         // alert('Product Name: ' +  parsedValue.product_name  + '\n' +
-//         //     'Image Source: ' + parsedValue.product_src + '\n' +
-//         //     'Description: ' + parsedValue.product_description  + '\n' +
-//         //     'Price: ' + parsedValue.product_price);
-
-//     } else {
-//         console.log(`${key} does not exist.`);
-//     }
-
-// }
 
 
 
