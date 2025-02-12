@@ -36,7 +36,7 @@ app.mount("/static", StaticFiles(directory="static"), name="static")
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["127.0.0.1","https://3b56-2402-3a80-1e1b-2c6-672b-d7c1-d82c-c8d1.ngrok-free.app"],  # Replace "*" with specific domains if needed
+    allow_origins=["*"],  # Replace "*" with specific domains if needed
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -72,10 +72,20 @@ async def shutdown_event():
     await close_db()
 
 
-
+country_name=""
+def get_country_name():
+    from app.main import country_name
+    return country_name
 
 @app.get("/", response_class=HTMLResponse)
 async def home(request: Request):
+    ip = request.client.host
+    api_url = f"http://ip-api.com/json/{ip}?fields=country,lat,lon,regionName,city"
+    async with httpx.AsyncClient() as client:
+        response = await client.get(api_url)
+        data = response.json()
+        global country_name 
+        country_name =data['country']
     return templates.TemplateResponse("index.html", {"request": request})
 
 
@@ -214,9 +224,10 @@ async def category_id(product:Product_details):
 async def list_product(Category:Product_category):
     print('category:',Category.category)
     msg= await list_product_by_category(Category.category)
+    global country_name
     if isinstance(msg,dict):
         return """ <h3>no item found.........</h3> """
-    htmlcode=await create_new_html(msg)
+    htmlcode=await create_new_html(msg,country_name)
     return htmlcode
 
 
@@ -224,9 +235,10 @@ async def list_product(Category:Product_category):
 async def seach_product(Category:Product_category):
     print('category:',Category.category)
     msg=await list_product_by_search_name(Category.category)
+    global country_name
     if isinstance(msg,dict):
         return """ <h3>no item found.........</h3> """
-    htmlcode=await create_new_html(msg)
+    htmlcode=await create_new_html(msg,country_name)
     return htmlcode
 
 
@@ -297,6 +309,7 @@ async def add_product(
     return msg
 
 
+
 @app.post("/delete_product/")
 async def delete_product(req:Delete_product,user: dict = Depends(verify_admin_jwt_token)):
     if req:
@@ -314,5 +327,6 @@ async def read_geolocation(request: Request):
     async with httpx.AsyncClient() as client:
         response = await client.get(api_url)
         data = response.json()
+        print(data['country'])
     return data
 

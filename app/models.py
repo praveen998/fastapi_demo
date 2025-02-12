@@ -203,13 +203,12 @@ async def list_product_by_category(category:str):
       else:
             return {"success": False, "message": "no category found"}
             
-async def list_product_by_search_name(name:str):
+async def list_product_by_search_name(description:str):
       global pool
-      print(type(name))
       try:
             async with pool.acquire() as connection:
                   async with connection.cursor(DictCursor) as cursor:
-                        await cursor.execute("select product_name,product_description,product_price,product_img_url from product_details where product_name like %s",(f'%{name}%'))
+                        await cursor.execute("select product_name,product_description,product_price,product_img_url from product_details where product_name like %s",(f'%{description}%'))
                         data=await cursor.fetchall()
                         return data
       except Error as e:
@@ -249,6 +248,9 @@ async def delete_img_from_aws(s3client,S3_BUCKET_NAME,filename):
         return False
 
 
+
+
+
 async def delete_product_by_name(product_name:str,s3client,S3_BUCKET_NAME):
       global pool
       data=await return_product_img_url(product_name)
@@ -273,6 +275,3 @@ async def delete_product_by_name(product_name:str,s3client,S3_BUCKET_NAME):
             return {"success": False, "message": f"Unexpected error: can't delete product_img"}
 
 
-
-
-#d= list_perfume_by_category('car perfumes')

@@ -4,10 +4,8 @@ from dotenv import load_dotenv
 import os
 from jose import jwt, JWTError
 from datetime import datetime, timedelta, timezone
-
 from fastapi import Depends,HTTPException
 from fastapi.security import OAuth2PasswordBearer
-
 import json
 
 load_dotenv()
@@ -64,7 +62,15 @@ def convert_products_to_dict(msg):
 
 
 
-async def create_new_html(msg):
+async def create_new_html(msg,country_name):
+    print("country name:",country_name)
+    if country_name == "India":
+        cname = "India" 
+    elif country_name == "UAE":
+        cname = "UAE"
+    else:
+        cname="India"
+
     htmlcode="""
     """
     for i in msg:
@@ -80,21 +86,46 @@ async def create_new_html(msg):
             c+=1
        
         htmlcode+=f""" 
-                <div class="col">
-                            <div class="card h-100 shadow-sm"> <img id="product_image"
-                                    src={prod[3]}
-                                    class="card-img-top" alt="...">
-                                <div class="card-body">
-                                    <div class="clearfix mb-3"> <span class="float-start badge rounded-pill bg-primary" id="product_name">{prod[0]}
-                                            </span> <span class="float-end price-hp" id="product_price">{prod[2]['India']}₹</span> </div>
-                                    <h5 class="card-title" id="product_description">{prod[1]}</h5>
-                                    {prod[3]}
-                                   <div class="text-center my-4"> <a href="" class="btn btn-warning" id="buynow">Buy Now</a> </div>
-                                   <div class="text-center my-4"> <a href="" class="float-end price-hp" style="text-decoration: none;" id="addcart" >Add To Cart</a> </div>
-                               
-                                </div>
-                            </div>
-                </div>
+               <div class="col">
+    <div class="card h-100 shadow-sm"> 
+        <img id="product_image"
+             src="{prod[3]}" 
+             class="card-img-top"
+             alt="..."
+             data-bs-toggle="modal" 
+             data-bs-target="#imageModal">
+        <div class="card-body">
+            <div class="clearfix mb-3"> 
+               <span class="float-start badge rounded-pill bg-primary" id="product_name" style="font-size: 1rem; padding: 7px 10px;">{prod[0]}</span> 
+
+                <span class="float-end price-hp" id="product_price">{prod[2][cname]}₹</span> 
+            </div>
+            <h5 class="card-title" id="product_description" style="font-weight: 400;">{prod[1]}</h5>
+
+            <div class="text-center my-4"> 
+                <a href="#" class="btn btn-warning" id="buynow">Buy Now</a> 
+            </div>
+            <div class="text-center my-4"> 
+                <a href="#" class="float-end price-hp" style="text-decoration: none;" id="addcart">Add To Cart</a> 
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Bootstrap Modal -->
+<div class="modal fade" id="imageModal" tabindex="-1" aria-labelledby="imageModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="imageModalLabel">{prod[0]}</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body text-center">
+                <img id="modalImage" src="{prod[3]}" class="img-fluid" alt="Product Image">
+            </div>
+        </div>
+    </div>
+</div>
 
            """
     return htmlcode

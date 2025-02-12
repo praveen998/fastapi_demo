@@ -9,22 +9,8 @@ let selectedValue;
 $(document).ready(function () {
    
 $(document).on("change", ".edit_product_category", function () {
-    selectedValue = $(this).val(); // Get the selected value
-    //alert(`${selectedValue}`);
+    selectedValue = $(this).val(); 
     loadTable(selectedValue);
-    // $.ajax({
-    //     url: geturl() + "/list_products/",
-    //     type: "POST",
-    //     contentType: "application/json",
-    //     data: JSON.stringify(data),
-    //     success: function (response) {
-    //         alert('product change');
-    //     },
-    //     error: function (xhr, status, error) {
-    //         console.error("Error fetching text:", error);
-    //         $('#textContent').text("Error fetching text. Please try again.");
-    //     }
-    // });
 
 });
 

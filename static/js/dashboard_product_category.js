@@ -9,10 +9,9 @@ loadCategories();
 
 
 $(document).ready(function () {
-
     const token = sessionStorage.getItem("jwt");
     $.ajax({
-        url: "http://127.0.0.1:8000/protected",
+        url: geturl()+"/protected",
         type: "GET",
         headers: {
             "Authorization": "Bearer " + token
@@ -20,7 +19,6 @@ $(document).ready(function () {
         success: function (response) {
             console.log("Response:", response);
         },
-
         error: function (xhr) {
             console.error("Error:", xhr.responseJSON.detail);
             window.location.href = geturl() + `/admin`;
@@ -34,7 +32,7 @@ $(document).ready(function () {
         let content = $("#content-area");
 
         if (page === "home") {
-            content.html("<h3>🏠 Home Page</h3><p>Welcome to your dashboard home!</p>");
+            window.location.href = geturl();
         } else if (page === "product_category") {
 
             product_category = `
