@@ -79,13 +79,13 @@ def get_country_name():
 
 @app.get("/", response_class=HTMLResponse)
 async def home(request: Request):
-    ip = request.client.host
-    api_url = f"http://ip-api.com/json/{ip}?fields=country,lat,lon,regionName,city"
-    async with httpx.AsyncClient() as client:
-        response = await client.get(api_url)
-        data = response.json()
-        global country_name 
-        country_name =data['country']
+    # ip = request.client.host
+    # api_url = f"http://ip-api.com/json/{ip}?fields=country,lat,lon,regionName,city"
+    # async with httpx.AsyncClient() as client:
+    #     response = await client.get(api_url)
+    #     data = response.json()
+    #     global country_name 
+    #     country_name =data['country']
     return templates.TemplateResponse("index.html", {"request": request})
 
 
