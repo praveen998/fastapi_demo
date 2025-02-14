@@ -297,3 +297,4 @@ function update_cart_logo() {
     $("#cart-count").text(`${len}`);
 }
 
+

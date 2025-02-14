@@ -21,6 +21,9 @@ from pydantic import BaseModel
 from typing import Optional, Dict, List
 import json
 import httpx
+import razorpay
+import hmac
+import hashlib
 
 
 app=FastAPI()
@@ -62,6 +65,8 @@ s3_client = boto3.client(
 )
 
 
+razorpay_client = razorpay.Client(auth=("rzp_test_b9S6cM2RxVtasJ","anAKj9HwZwnd2KowSRG36jJx"))
+
 @app.on_event("startup")
 async def startup_event():
     await init_db()
@@ -77,6 +82,7 @@ def get_country_name():
     from app.main import country_name
     return country_name
 
+
 @app.get("/", response_class=HTMLResponse)
 async def home(request: Request):
     # ip = request.client.host
@@ -86,6 +92,27 @@ async def home(request: Request):
     #     data = response.json()
     #     global country_name 
     #     country_name =data['country']
+    # try:
+    #     order = razorpay_client.order.create({
+    #         "amount": 100,  # Amount in paise (100 paise = ₹1)
+    #         "currency": "INR",
+    #         "payment_capture": "1"
+    #     })
+    #     print("✅ Razorpay API Authentication Successful!")
+    #     print("✅ Order Created:", order)
+
+    # except razorpay.errors.BadRequestError as e:  
+    #     print("❌ Authentication Failed: Invalid API Key or Secret.")
+    #     print(e)
+
+    # except razorpay.errors.ServerError as e:
+    #     print("❌ Razorpay Server Error. Try again later.")
+    #     print(e)
+
+    # except Exception as e:  
+    #     print("❌ Some other error occurred.")
+    #     print(e)
+
     return templates.TemplateResponse("index.html", {"request": request})
 
 
@@ -242,7 +269,6 @@ async def seach_product(Category:Product_category):
     return htmlcode
 
 
-
 @app.post("/list_products_edit_product/")
 async def list_product_edit_product(Category:Product_category,user: dict = Depends(verify_admin_jwt_token)):
     print('category:',Category.category)
@@ -330,3 +356,36 @@ async def read_geolocation(request: Request):
         print(data['country'])
     return data
 
+
+@app.post("/create-order/")
+async def create_order():
+    order_data = 
+    {
+        "amount": 50000,  # Amount in paisa (50000 paisa = 500 INR)
+        "currency": "INR",
+        "payment_capture": 1,  # Auto-capture payment
+    }
+    order = razorpay_client.order.create(order_data)
+    return order
+
+
+
+@app.post("/verify-payment/")
+async def verify_payment(request: Request):
+    data = await request.json()
+    
+    razorpay_payment_id = data.get("razorpay_payment_id")
+    razorpay_order_id = data.get("razorpay_order_id")
+    razorpay_signature = data.get("razorpay_signature")
+    
+    params_dict = {
+        'razorpay_order_id': razorpay_order_id,
+        'razorpay_payment_id': razorpay_payment_id,
+        'razorpay_signature': razorpay_signature
+    }
+
+    try:
+        razorpay_client.utility.verify_payment_signature(params_dict)
+        return {"status": "Payment Successful"}
+    except:
+        return {"status": "Payment Verification Failed"}
