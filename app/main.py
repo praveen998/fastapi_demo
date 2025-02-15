@@ -12,7 +12,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi import Depends
 from app.models import init_db,close_db,insert_category,return_all_category,list_product_by_category,delete_category,insert_product_details,list_product_by_search_name
 from app.models import return_category_id,insert_product_details,pool,delete_product_by_name,return_product_img_url
-from app.pydanticmodels import Product_category,Product_category,Employee,Product_details,Admin,Delete_product
+from app.pydanticmodels import Product_category,Product_category,Employee,Product_details,Admin,Delete_product,Create_Order
 from app.utils import create_new_html,verify_password,verify_admin_jwt_token,create_jwt_token,convert_products_to_dict
 from fastapi.templating import Jinja2Templates
 from fastapi.staticfiles import StaticFiles
@@ -358,14 +358,40 @@ async def read_geolocation(request: Request):
 
 
 @app.post("/create-order/")
-async def create_order():
-    order_data = 
-    {
-        "amount": 50000,  # Amount in paisa (50000 paisa = 500 INR)
-        "currency": "INR",
-        "payment_capture": 1,  # Auto-capture payment
-    }
-    order = razorpay_client.order.create(order_data)
+async def create_order(c_order:Create_Order):
+    print('firstname',c_order.first_name)
+    print('lastname',c_order.last_name)
+    print('email',c_order.email)
+    print('phone',c_order.phone)
+    print('country',c_order.country)
+    print('state',c_order.state)
+    print('address',c_order.address)
+    print('zipcode',c_order.zipcode)
+    print('additional_info',c_order.additional_info)
+    print('total_amount',c_order.total_amount)
+
+    try:
+        order = razorpay_client.order.create({
+            "amount": c_order.total_amount*100,  # Amount in paise (100 paise = ₹1)
+            "currency": "INR",
+            "payment_capture": "1"
+        })
+        print("✅ Razorpay API Authentication Successful!")
+        print("✅ Order Created:", order)
+
+    except razorpay.errors.BadRequestError as e:  
+        print("❌ Authentication Failed: Invalid API Key or Secret.")
+        print(e)
+
+    except razorpay.errors.ServerError as e:
+        print("❌ Razorpay Server Error. Try again later.")
+        print(e)
+
+    except Exception as e:  
+        print("❌ Some other error occurred.")
+        print(e)
+    print('order:',order)
+    
     return order
 
 
@@ -373,7 +399,6 @@ async def create_order():
 @app.post("/verify-payment/")
 async def verify_payment(request: Request):
     data = await request.json()
-    
     razorpay_payment_id = data.get("razorpay_payment_id")
     razorpay_order_id = data.get("razorpay_order_id")
     razorpay_signature = data.get("razorpay_signature")

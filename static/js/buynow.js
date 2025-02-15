@@ -11,41 +11,74 @@ function sanitizeInput(input) {
 
 $(document).ready(function () {
     append_cart_item();
-    $('.placeorder').click(function(){
+    $('.placeorder').click(async function(){
         let firstName = sanitizeInput($("#firstName").val());
         let lastName = sanitizeInput($("#lastName").val());
         let email = sanitizeInput($('#email').val());
+        let phone=sanitizeInput($('#phone').val().toString());
         let country=sanitizeInput($('#country').val());
+        let state=sanitizeInput($('#state').val());
+        let address=sanitizeInput($('#address').val());
+        let zipcode=sanitizeInput($('#zipcode').val());
         let additionalInfo=sanitizeInput($('#additionalInfo').val());
+        const keys = 'buynow_product';
+        const storedValues = localStorage.getItem(keys);
+        let parsedValue = JSON.parse(storedValues);
+        let total_amount=parsedValue.product_total;
 
-        if(firstName && lastName && email && country && additionalInfo){
-        alert(`
-            firstname: ${firstName},
-            lastName: ${lastName},
-            email: ${email},
-            country:${country},
-            additionalinfo:${lastName}`);
+        if(firstName && lastName && email && country && phone && state && address && zipcode){
+        alert(`${total_amount}`);
+        let response = await $.ajax({
+            url: geturl()+"/create-order/",
+                type: "POST",
+                contentType: "application/json",
+                data: JSON.stringify({
+                    first_name: firstName,
+                    last_name: lastName,
+                    email: email,
+                    phone:phone,
+                    state:state,
+                    address:address,
+                    country: country,
+                    zipcode:zipcode,
+                    additional_info: additionalInfo,
+                    total_amount:total_amount
+                }),
+                success: function(data) {
+                   // alert("Order placed successfully!");
+                    let options = {
+                        "key": "rzp_test_b9S6cM2RxVtasJ",
+                        "amount": response.amount,
+                        "currency": "INR",
+                        "order_id": response.id,
+                        "handler": async function (razorpayResponse) {
+                            // Send payment verification data to FastAPI
+                            let verifyResponse = await $.ajax({
+                                url: geturl()+"/verify-payment/",
+                                type: "POST",
+                                contentType: "application/json",
+                                data: JSON.stringify(razorpayResponse)
+                            });
+                            alert(verifyResponse.status);
+                        }
+                    };
+
+                    let rzp1 = new Razorpay(options);
+                    rzp1.open();
+
+
+
+                },
+                error: function(error) {
+                    alert("Error placing order!");
+                }
+        });
+
         }
         else{
             $(".required").text('error:fill every field...');
         }
-            const key = 'buynow_product';
-            const storedValue = localStorage.getItem(key);
-            if (storedValue) 
-            {
-                let parsedValue = JSON.parse(storedValue);
-                product_name=parsedValue.product_name;
-                product_price=parsedValue.product_price;
-                product_count=parsedValue.product_count;
-                product_total=parsedValue.product_total;
-
-
-                // alert(`product_name:${product_name},
-                //     product_price:${product_price},
-                //     product_count:${product_count},
-                //     product_total:${product_total}
-                //     `);
-            }
+          
         });
     
 
@@ -75,6 +108,7 @@ $(document).ready(function () {
                 alert(verifyResponse.status);
             }
         };
+        
         let rzp1 = new Razorpay(options);
         rzp1.open();
     });
@@ -107,7 +141,6 @@ $(document).ready(function () {
         // Add more countries here as needed
     ];
 
-    // Populate the country dropdown using the static list
     var countrySelect = $('#country');
     countries.forEach(function(country) {
         countrySelect.append('<option value="' + country.id + '">' + country.text + '</option>');
@@ -201,6 +234,7 @@ function append_cart_item(){
 }
 
 
+
 function retrieve_buynow_storage(){
     const key = 'buynow_product';
     const storedValue = localStorage.getItem(key);
@@ -217,3 +251,8 @@ function retrieve_buynow_storage(){
 
 }
 
+function get_stored_value(){
+    const key = 'buynow_product';
+    const storedValue = localStorage.getItem(key);
+    return storedValue;
+}

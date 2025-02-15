@@ -1,4 +1,4 @@
-from pydantic import BaseModel
+from pydantic import BaseModel,EmailStr,constr
 from typing import Optional, Dict, Any
 from dotenv import load_dotenv
 import os
@@ -41,3 +41,16 @@ class Admin(BaseModel):
     #         return {'status':'success'}
     #     else:
     #         return {'status':'error'}
+
+class Create_Order(BaseModel):
+    first_name: str
+    last_name: str
+    email: EmailStr
+    phone: str
+    country: str
+    state:str
+    address:str
+    zipcode:str
+    additional_info: Optional[str]=None
+    total_amount:int
+
