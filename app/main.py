@@ -358,40 +358,14 @@ async def read_geolocation(request: Request):
 
 
 @app.post("/create-order/")
-async def create_order(c_order:Create_Order):
-    print('firstname',c_order.first_name)
-    print('lastname',c_order.last_name)
-    print('email',c_order.email)
-    print('phone',c_order.phone)
-    print('country',c_order.country)
-    print('state',c_order.state)
-    print('address',c_order.address)
-    print('zipcode',c_order.zipcode)
-    print('additional_info',c_order.additional_info)
-    print('total_amount',c_order.total_amount)
-
-    try:
-        order = razorpay_client.order.create({
-            "amount": c_order.total_amount*100,  # Amount in paise (100 paise = ₹1)
-            "currency": "INR",
-            "payment_capture": "1"
-        })
-        print("✅ Razorpay API Authentication Successful!")
-        print("✅ Order Created:", order)
-
-    except razorpay.errors.BadRequestError as e:  
-        print("❌ Authentication Failed: Invalid API Key or Secret.")
-        print(e)
-
-    except razorpay.errors.ServerError as e:
-        print("❌ Razorpay Server Error. Try again later.")
-        print(e)
-
-    except Exception as e:  
-        print("❌ Some other error occurred.")
-        print(e)
-    print('order:',order)
-    
+async def create_order():
+    order_data = 
+    {
+        "amount": 50000,  # Amount in paisa (50000 paisa = 500 INR)
+        "currency": "INR",
+        "payment_capture": 1,  # Auto-capture payment
+    }
+    order = razorpay_client.order.create(order_data)
     return order
 
 
