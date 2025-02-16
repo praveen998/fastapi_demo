@@ -54,3 +54,25 @@ class Create_Order(BaseModel):
     additional_info: Optional[str]=None
     total_amount:int
 
+
+class PaymentData(BaseModel):
+    first_name: str
+    last_name: str
+    email: EmailStr
+    phone: str
+    country: str
+    state:str
+    address:str
+    zipcode:str
+    additional_info: Optional[str]=None
+    total_amount:int
+    razorpay_payment_id: str
+    razorpay_order_id: str
+    razorpay_signature: str
+
+
+class VerifyPaymentRequest(BaseModel):
+   # customer: Dict[str, Any]  # This will allow a dictionary as part of the request
+    razorpay_order_id: str
+    razorpay_payment_id: str
+    razorpay_signature: str

@@ -12,7 +12,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi import Depends
 from app.models import init_db,close_db,insert_category,return_all_category,list_product_by_category,delete_category,insert_product_details,list_product_by_search_name
 from app.models import return_category_id,insert_product_details,pool,delete_product_by_name,return_product_img_url
-from app.pydanticmodels import Product_category,Product_category,Employee,Product_details,Admin,Delete_product,Create_Order
+from app.pydanticmodels import Product_category,Product_category,Employee,Product_details,Admin,Delete_product,Create_Order,VerifyPaymentRequest
 from app.utils import create_new_html,verify_password,verify_admin_jwt_token,create_jwt_token,convert_products_to_dict
 from fastapi.templating import Jinja2Templates
 from fastapi.staticfiles import StaticFiles
@@ -345,7 +345,6 @@ async def delete_product(req:Delete_product,user: dict = Depends(verify_admin_jw
         raise HTTPException(status_code=401, detail="no product name given")
 
 
-
 @app.get("/geolocation-by-ip")
 async def read_geolocation(request: Request):
     ip = request.client.host  # Get the client's IP address
@@ -357,34 +356,61 @@ async def read_geolocation(request: Request):
     return data
 
 
+
 @app.post("/create-order/")
-async def create_order():
-    order_data = 
-    {
-        "amount": 50000,  # Amount in paisa (50000 paisa = 500 INR)
-        "currency": "INR",
-        "payment_capture": 1,  # Auto-capture payment
-    }
-    order = razorpay_client.order.create(order_data)
-    return order
+async def create_order(c_order:Create_Order):
+    print('first_name:',c_order.first_name)
+    print('last_name',c_order.last_name)
+    print('email',c_order.email)
+    print('phone',c_order.phone)
+    print('country',c_order.country)
+    print('state',c_order.state)
+    print('address',c_order.address)
+    print('zipcode',c_order.zipcode)
+    print('additional_info',c_order.additional_info)
+    print('total_amount',c_order.total_amount)
+    try:
+        # Convert amount to paisa (Razorpay requires amount in paisa)
+        order_payload = {
+            "amount": int(c_order.total_amount * 100),  # Convert INR to paisa
+            "currency": "INR",
+            "payment_capture": 1,  # Auto-capture payment
+        }
+        # Create order
+        order_out = razorpay_client.order.create(order_payload)
+        order={'id':order_out['id'],'currency':order_out['currency'],'amount':order_out['amount'],"message": "Your Order is Ready Checkout Now..!",'first_name':c_order.first_name,'last_name':c_order.last_name,'email':c_order.email,'phone':c_order.phone,'country':c_order.country,
+        'state':c_order.state,'address':c_order.address,'zipcode':c_order.zipcode,'total_amount':c_order.total_amount}
+        return order
+
+    except razorpay.errors.BadRequestError as e:
+        raise HTTPException(status_code=400, detail=f"Bad Request: {str(e)}")
+    except razorpay.errors.UnauthorizedError as e:
+        raise HTTPException(status_code=401, detail=f"Unauthorized: {str(e)}")
+    except razorpay.errors.ForbiddenError as e:
+        raise HTTPException(status_code=403, detail=f"Forbidden: {str(e)}")
+    except razorpay.errors.NotFoundError as e:
+        raise HTTPException(status_code=404, detail=f"Not Found: {str(e)}")
+    except razorpay.errors.ServerError as e:
+        raise HTTPException(status_code=500, detail=f"Razorpay Server Error: {str(e)}")
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Internal Server Error: {str(e)}")
 
 
 
 @app.post("/verify-payment/")
-async def verify_payment(request: Request):
-    data = await request.json()
-    razorpay_payment_id = data.get("razorpay_payment_id")
-    razorpay_order_id = data.get("razorpay_order_id")
-    razorpay_signature = data.get("razorpay_signature")
-    
-    params_dict = {
-        'razorpay_order_id': razorpay_order_id,
-        'razorpay_payment_id': razorpay_payment_id,
-        'razorpay_signature': razorpay_signature
-    }
-
+async def verify_payment(data: VerifyPaymentRequest):
     try:
-        razorpay_client.utility.verify_payment_signature(params_dict)
-        return {"status": "Payment Successful"}
-    except:
-        return {"status": "Payment Verification Failed"}
+        # Concatenate order_id and payment_id as per Razorpay docs
+        generated_signature = hmac.new("anAKj9HwZwnd2KowSRG36jJx".encode(),
+            f"{data.razorpay_order_id}|{data.razorpay_payment_id}".encode(),
+            hashlib.sha256
+        ).hexdigest()
+
+        # Compare with Razorpay's signature
+        if generated_signature == data.razorpay_signature:
+            return {"status": "success", "message": "Payment verified successfully!"}
+        else:
+            raise HTTPException(status_code=400, detail="Invalid payment signature")
+        
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
