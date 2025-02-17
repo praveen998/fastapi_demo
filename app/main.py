@@ -356,7 +356,6 @@ async def read_geolocation(request: Request):
     return data
 
 
-
 @app.post("/create-order/")
 async def create_order(c_order:Create_Order):
     print('first_name:',c_order.first_name)
@@ -397,6 +396,9 @@ async def create_order(c_order:Create_Order):
 
 
 
+   
+
+
 @app.post("/verify-payment/")
 async def verify_payment(data: VerifyPaymentRequest):
     try:
@@ -414,3 +416,42 @@ async def verify_payment(data: VerifyPaymentRequest):
         
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
+
+
+
+@app.post("/create-order-cart/")
+async def create_order_cart(request: Request):
+    request_data = await request.json() 
+    order_data = request_data.get("order", {})
+    cart_data = request_data.get("cart", [])
+    total_amount=0
+    print(order_data)
+    for i in range(len(cart_data)):
+        total_amount+=cart_data[i]['product_total']
+    try:
+        # Convert amount to paisa (Razorpay requires amount in paisa)
+        order_payload = {
+            "amount": int(total_amount * 100),  # Convert INR to paisa
+            "currency": "INR",
+            "payment_capture": 1,  # Auto-capture payment
+        }
+
+    except razorpay.errors.BadRequestError as e:
+        raise HTTPException(status_code=400, detail=f"Bad Request: {str(e)}")
+    except razorpay.errors.UnauthorizedError as e:
+        raise HTTPException(status_code=401, detail=f"Unauthorized: {str(e)}")
+    except razorpay.errors.ForbiddenError as e:
+        raise HTTPException(status_code=403, detail=f"Forbidden: {str(e)}")
+    except razorpay.errors.NotFoundError as e:
+        raise HTTPException(status_code=404, detail=f"Not Found: {str(e)}")
+    except razorpay.errors.ServerError as e:
+        raise HTTPException(status_code=500, detail=f"Razorpay Server Error: {str(e)}")
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Internal Server Error: {str(e)}")
+     
+    order_out = razorpay_client.order.create(order_payload)
+    order={'id':order_out['id'],'currency':order_out['currency'],'amount':order_out['amount'],"message": "Your Order is Ready Checkout Now..!",'first_name':order_data['first_name'],'last_name':order_data['last_name'],'email':order_data['email'],'phone':order_data['phone'],'country':order_data['country'],
+    'state':order_data['state'],'address':order_data['address'],'zipcode':order_data['zipcode'],'total_amount':total_amount,'cart_data':cart_data}
+    print(order)
+    return order
+    #return {"status": "success", "message": "Payment verified successfully!"}
