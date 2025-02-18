@@ -9,7 +9,41 @@ function sanitizeInput(input) {
 }
 
 
+let csrfToken = "";
+$.ajax({
+    url: geturl() + "/csrf-token",
+    type: "GET",
+    success: (data) => {
+        console.log("CSRF Token Response:", data);
+        csrfToken = data?.csrf_token || "Not Found";
+        alert(`CSRF Token: ${csrfToken}`);
+    },
+    error: (xhr, status, error) => {
+        console.error("Error fetching CSRF token:", xhr.responseText);
+    }
+});
+
+
+
 $(document).ready(function () {
+
+            $(".submit-btn").click(function() {
+                alert('button clicked');
+                $.ajax({
+                    url: geturl()+"/submit",
+                    type: "POST",
+                    headers: {
+                        "X-CSRF-Token": csrfToken
+                    },
+                    success: function(response) {
+                        alert(response.message);
+                    },
+                    error: function(xhr) {
+                        alert("CSRF validation failed!");
+                    }
+                });
+            });
+
     append_cart_item();
     let customer;
     $('.placeorder').click(async function () {
@@ -33,6 +67,9 @@ $(document).ready(function () {
             let response = await $.ajax({
                 url: geturl() + "/create-order/",
                 type: "POST",
+                headers: {
+                    "X-CSRF-Token": csrfToken
+                },
                 contentType: "application/json",
                 data: JSON.stringify({
                     first_name: firstName,

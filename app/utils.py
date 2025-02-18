@@ -7,6 +7,9 @@ from datetime import datetime, timedelta, timezone
 from fastapi import Depends,HTTPException
 from fastapi.security import OAuth2PasswordBearer
 import json
+import smtplib
+from email.mime.text import MIMEText
+from email.mime.multipart import MIMEMultipart
 
 load_dotenv()
 
@@ -131,3 +134,27 @@ async def create_new_html(msg,country_name):
     return htmlcode
 
 
+
+async def send_email(subject,body,to_email):
+    from_email ="info@hhhperfumes.in"
+    from_password="infoHHH@123"
+
+    msg = MIMEMultipart()
+    msg['From'] = from_email
+    msg['To'] = to_email
+    msg['Subject'] = subject
+
+    msg.attach(MIMEText(body,"plain"))
+    try:
+        #server = smtplib.SMTP('smtp.gmail.com', 587)
+        server = smtplib.SMTP('smtp.hostinger.com', 465)
+        server.starttls()  # Start TLS encryption   
+        server.login(from_email, from_password)
+        text = msg.as_string()
+        server.sendmail(from_email, to_email, text)
+        server.quit()  # Close the connection
+        print("Email sent successfully!")
+    except Exception as e:
+        print(f"Failed to send email. Error: {e}")
+
+    

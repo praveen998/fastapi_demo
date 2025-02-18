@@ -17,9 +17,10 @@ function getselectedvalue() {
     selectedValue = localStorage.getItem("selectedValue");
     return selectedValue;
 }
-
-
 seturl();
+
+
+
 
 $.ajax({
     url: geturl() + "/list_category",

@@ -1,4 +1,4 @@
-from fastapi import FastAPI,HTTPException,Request,Form, File, UploadFile
+from fastapi import FastAPI,HTTPException,Request,Form, File, UploadFile,BackgroundTasks
 from fastapi.responses import PlainTextResponse
 from fastapi.responses import HTMLResponse
 from fastapi.responses import FileResponse
@@ -13,7 +13,7 @@ from fastapi import Depends
 from app.models import init_db,close_db,insert_category,return_all_category,list_product_by_category,delete_category,insert_product_details,list_product_by_search_name
 from app.models import return_category_id,insert_product_details,pool,delete_product_by_name,return_product_img_url
 from app.pydanticmodels import Product_category,Product_category,Employee,Product_details,Admin,Delete_product,Create_Order,VerifyPaymentRequest
-from app.utils import create_new_html,verify_password,verify_admin_jwt_token,create_jwt_token,convert_products_to_dict
+from app.utils import create_new_html,verify_password,verify_admin_jwt_token,create_jwt_token,convert_products_to_dict,send_email
 from fastapi.templating import Jinja2Templates
 from fastapi.staticfiles import StaticFiles
 from app.database import init_ormdb
@@ -24,6 +24,10 @@ import httpx
 import razorpay
 import hmac
 import hashlib
+from fastapi_csrf_protect import CsrfProtect
+import secrets
+from fastapi import Response
+
 
 
 app=FastAPI()
@@ -78,41 +82,12 @@ async def shutdown_event():
 
 
 country_name=""
-def get_country_name():
-    from app.main import country_name
-    return country_name
+
 
 
 @app.get("/", response_class=HTMLResponse)
-async def home(request: Request):
-    # ip = request.client.host
-    # api_url = f"http://ip-api.com/json/{ip}?fields=country,lat,lon,regionName,city"
-    # async with httpx.AsyncClient() as client:
-    #     response = await client.get(api_url)
-    #     data = response.json()
-    #     global country_name 
-    #     country_name =data['country']
-    # try:
-    #     order = razorpay_client.order.create({
-    #         "amount": 100,  # Amount in paise (100 paise = ₹1)
-    #         "currency": "INR",
-    #         "payment_capture": "1"
-    #     })
-    #     print("✅ Razorpay API Authentication Successful!")
-    #     print("✅ Order Created:", order)
-
-    # except razorpay.errors.BadRequestError as e:  
-    #     print("❌ Authentication Failed: Invalid API Key or Secret.")
-    #     print(e)
-
-    # except razorpay.errors.ServerError as e:
-    #     print("❌ Razorpay Server Error. Try again later.")
-    #     print(e)
-
-    # except Exception as e:  
-    #     print("❌ Some other error occurred.")
-    #     print(e)
-
+async def home(request: Request, background_tasks: BackgroundTasks):
+    background_tasks.add_task(send_email,"Test Subject", "This is a test email body.", "praveengopi998@gmail.com")
     return templates.TemplateResponse("index.html", {"request": request})
 
 
@@ -136,7 +111,6 @@ async def create_eployee(emp:Employee):
 @app.get("/admin",response_class=HTMLResponse)
 async def adminpage(request: Request):
     return templates.TemplateResponse("adminlogin.html", {"request": request})
-
 
 
 
@@ -357,7 +331,13 @@ async def read_geolocation(request: Request):
 
 
 @app.post("/create-order/")
-async def create_order(c_order:Create_Order):
+async def create_order(c_order:Create_Order,request: Request):
+    csrf_token_cookie = request.cookies.get("csrf_token")  # Get CSRF token from cookies
+    csrf_token_header = request.headers.get("X-CSRF-Token")  # Get CSRF token from headers
+
+    if not csrf_token_cookie or csrf_token_cookie != csrf_token_header:
+        raise HTTPException(status_code=403, detail="CSRF validation failed")
+
     print('first_name:',c_order.first_name)
     print('last_name',c_order.last_name)
     print('email',c_order.email)
@@ -396,9 +376,6 @@ async def create_order(c_order:Create_Order):
 
 
 
-   
-
-
 @app.post("/verify-payment/")
 async def verify_payment(data: VerifyPaymentRequest):
     try:
@@ -421,7 +398,13 @@ async def verify_payment(data: VerifyPaymentRequest):
 
 @app.post("/create-order-cart/")
 async def create_order_cart(request: Request):
-    request_data = await request.json() 
+    csrf_token_cookie = request.cookies.get("csrf_token")  # Get CSRF token from cookies
+    csrf_token_header = request.headers.get("X-CSRF-Token")  # Get CSRF token from headers
+
+    if not csrf_token_cookie or csrf_token_cookie != csrf_token_header:
+        raise HTTPException(status_code=403, detail="CSRF validation failed")
+
+    request_data = await request.json()
     order_data = request_data.get("order", {})
     cart_data = request_data.get("cart", [])
     total_amount=0
@@ -455,3 +438,27 @@ async def create_order_cart(request: Request):
     print(order)
     return order
     #return {"status": "success", "message": "Payment verified successfully!"}
+
+
+@app.get("/csrf-token")
+async def get_csrf_token(response: Response):
+    csrf_token = secrets.token_hex(32)  # Generate a random CSRF token
+    response.set_cookie(
+        key="csrf_token",
+        value=csrf_token,
+        httponly=True,  # Prevent JavaScript access
+        samesite="Strict",  # Prevent CSRF attacks
+        secure=True  # Require HTTPS in production
+    )
+    return {"csrf_token": csrf_token} 
+
+
+@app.post("/submit")
+async def submit_data(request: Request):
+    csrf_token_cookie = request.cookies.get("csrf_token")  # Get CSRF token from cookies
+    csrf_token_header = request.headers.get("X-CSRF-Token")  # Get CSRF token from headers
+
+    if not csrf_token_cookie or csrf_token_cookie != csrf_token_header:
+        raise HTTPException(status_code=403, detail="CSRF validation failed")
+
+    return {"message": "Data submitted successfully"}

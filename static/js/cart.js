@@ -8,6 +8,20 @@ function sanitizeInput(input) {
     return $("<div>").text(input).html();
 }
 
+let csrfToken = "";
+$.ajax({
+    url: geturl() + "/csrf-token",
+    type: "GET",
+    success: (data) => {
+        console.log("CSRF Token Response:", data);
+        csrfToken = data?.csrf_token || "Not Found";
+        alert(`CSRF Token: ${csrfToken}`);
+    },
+    error: (xhr, status, error) => {
+        console.error("Error fetching CSRF token:", xhr.responseText);
+    }
+});
+
 
 $(document).ready(function () {
     append_cart_items();
@@ -24,19 +38,23 @@ $(document).ready(function () {
          zipcode : sanitizeInput($('#zipcode').val()),
          additionalInfo : sanitizeInput($('#additionalInfo').val())
         }
+
         const storedValues = localStorage.getItem("mycart");
         let mycart = JSON.parse(storedValues);
         
-
         let requestData = {
             order: orderData,
             cart: mycart
         };
+
         if(firstName && lastName && email && country && phone && state && address && zipcode){
         $(".required").text('');
         let response = await $.ajax({
             url: geturl() + "/create-order-cart/",
             type: "POST",
+            headers: {
+                "X-CSRF-Token": csrfToken
+            },
             contentType: "application/json",
             data: JSON.stringify(requestData),
             success: function (response) {
@@ -113,10 +131,10 @@ $(document).ready(function () {
                                         razorpay_signature: response.razorpay_signature
                                     })
                                 });
-
                                 let result = await verifyResponse.json();
                                 if (verifyResponse.ok) {
                                     alert("✅ Payment Verified: " + result.message);
+
                                     $(".mainwindow").html(`
                                         <span style="color: green;">Your Order Created...! Thanks for Purchasing</span>
                                         <div class="card-footer mt-4">
