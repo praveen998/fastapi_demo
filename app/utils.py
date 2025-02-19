@@ -136,8 +136,8 @@ async def create_new_html(msg,country_name):
 
 
 async def send_email(subject,body,to_email):
-    from_email ="info@hhhperfumes.in"
-    from_password="infoHHH@123"
+    from_email ="praveen.gopi717@gmail.com"
+    from_password="nbrw kyzi zpto sezm"
 
     msg = MIMEMultipart()
     msg['From'] = from_email
@@ -146,8 +146,8 @@ async def send_email(subject,body,to_email):
 
     msg.attach(MIMEText(body,"plain"))
     try:
-        #server = smtplib.SMTP('smtp.gmail.com', 587)
-        server = smtplib.SMTP('smtp.hostinger.com', 465)
+        server = smtplib.SMTP('smtp.gmail.com', 587)
+        #server = smtplib.SMTP('smtp.hostinger.com', 465)
         server.starttls()  # Start TLS encryption   
         server.login(from_email, from_password)
         text = msg.as_string()

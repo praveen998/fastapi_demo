@@ -57,8 +57,23 @@ $(document).ready(function () {
             },
             contentType: "application/json",
             data: JSON.stringify(requestData),
-            success: function (response) {
+            success: async function (response) {
                 customer = response;
+                await $.ajax({
+                    url: geturl() + "/send_purchase_data/",
+                    type: "POST",
+                    // headers: {
+                    //     "X-CSRF-Token": csrfToken
+                    // },
+                    contentType: "application/json",
+                    data: JSON.stringify(customer),
+                    success: function (response) {
+                    },
+                    error:{
+                        
+                    }
+                });
+
                     $(".orderstatus").html(`
                          <span style="color: green;">${response.message}</span>
                          <div class="card-footer mt-4">
@@ -118,8 +133,6 @@ $(document).ready(function () {
                             description: "Test Transaction",
                             //image: "https://your-logo-url.com/logo.png", // Your company logo
                             handler: async function (response) {
-                                // This function will be called after a successful payment
-                                //alert("Payment successful! Payment ID: " + res.razorpay_payment_id);
                             try{
                                 let verifyResponse = await fetch(geturl()+"/verify-payment/", {
                                     method: "POST",
@@ -133,7 +146,10 @@ $(document).ready(function () {
                                 });
                                 let result = await verifyResponse.json();
                                 if (verifyResponse.ok) {
+
+                                      
                                     alert("✅ Payment Verified: " + result.message);
+
 
                                     $(".mainwindow").html(`
                                         <span style="color: green;">Your Order Created...! Thanks for Purchasing</span>
@@ -191,7 +207,7 @@ $(document).ready(function () {
                             },
                             notes: {
                                 address: response.address,
-                                zipcode: response.zipcode
+                                zipcode: response.zipcode,
                             },
                             theme: {
                                 color: "#F37254", // Customize the payment button color

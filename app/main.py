@@ -54,6 +54,7 @@ init_ormdb()
 load_dotenv()
 # AWS S3 Configuration
 
+
 AWS_ACCESS_KEY_ID = os.getenv("AWS_ACCESS_KEY_ID")
 AWS_SECRET_ACCESS_KEY = os.getenv("AWS_SECRET_ACCESS_KEY")
 AWS_REGION = os.getenv("AWS_REGION")
@@ -87,7 +88,7 @@ country_name=""
 
 @app.get("/", response_class=HTMLResponse)
 async def home(request: Request, background_tasks: BackgroundTasks):
-    background_tasks.add_task(send_email,"Test Subject", "This is a test email body.", "praveengopi998@gmail.com")
+   # background_tasks.add_task(send_email,"Test Subject", "This is a test email body.", "praveengopi998@gmail.com")
     return templates.TemplateResponse("index.html", {"request": request})
 
 
@@ -117,13 +118,10 @@ async def adminpage(request: Request):
 #addmin authentication--------------------------------------------------------
 @app.post("/adminauth")
 async def adminpage(admin:Admin):
-    print('username:',admin.username)
-    print('password:',admin.password)
     val=verify_password(admin.password,os.getenv('adminhash'))
     #status=Admin.check_auth(Admin.username,Admin.password)
     if val:
           token = create_jwt_token({"username": admin.username})
-          print(token)
           return {"message": "Login successful", "status": "success","token": token}
     else:
           raise HTTPException(status_code=401, detail="Invalid username or password")
@@ -137,7 +135,6 @@ async def dashboard(request: Request):
 
 @app.get("/protected")
 async def protected_route(user: dict = Depends(verify_admin_jwt_token)):
-    print(user)
     return {"message": "Access granted", "user": user}
 
 
@@ -160,10 +157,12 @@ def upload():
             Body=file_content,
             ContentType=mime_type,
         )
+
         file_url = f"https://{S3_BUCKET_NAME}.s3.{s3_client.meta.region_name}.amazonaws.com/hhhperfumes/{file_name}"
 
         return {"message": f"File '{file_url}' uploaded successfully to S3 bucket '{S3_BUCKET_NAME}'."}
     
+
     except (BotoCoreError, ClientError) as e:
         raise HTTPException(status_code=500, detail=f"Failed to upload file: {str(e)}")
 
@@ -223,7 +222,6 @@ async def category_id(product:Product_details):
 
 @app.post("/list_products/",response_class=HTMLResponse)
 async def list_product(Category:Product_category):
-    print('category:',Category.category)
     msg= await list_product_by_category(Category.category)
     global country_name
     if isinstance(msg,dict):
@@ -234,7 +232,6 @@ async def list_product(Category:Product_category):
 
 @app.post("/seach_product/",response_class=HTMLResponse)
 async def seach_product(Category:Product_category):
-    print('category:',Category.category)
     msg=await list_product_by_search_name(Category.category)
     global country_name
     if isinstance(msg,dict):
@@ -245,7 +242,6 @@ async def seach_product(Category:Product_category):
 
 @app.post("/list_products_edit_product/")
 async def list_product_edit_product(Category:Product_category,user: dict = Depends(verify_admin_jwt_token)):
-    print('category:',Category.category)
     msg= await list_product_by_category(Category.category)
     product_dict= convert_products_to_dict(msg)
     if isinstance(msg,dict):
@@ -396,6 +392,7 @@ async def verify_payment(data: VerifyPaymentRequest):
 
 
 
+
 @app.post("/create-order-cart/")
 async def create_order_cart(request: Request):
     csrf_token_cookie = request.cookies.get("csrf_token")  # Get CSRF token from cookies
@@ -408,7 +405,6 @@ async def create_order_cart(request: Request):
     order_data = request_data.get("order", {})
     cart_data = request_data.get("cart", [])
     total_amount=0
-    print(order_data)
     for i in range(len(cart_data)):
         total_amount+=cart_data[i]['product_total']
     try:
@@ -435,9 +431,9 @@ async def create_order_cart(request: Request):
     order_out = razorpay_client.order.create(order_payload)
     order={'id':order_out['id'],'currency':order_out['currency'],'amount':order_out['amount'],"message": "Your Order is Ready Checkout Now..!",'first_name':order_data['first_name'],'last_name':order_data['last_name'],'email':order_data['email'],'phone':order_data['phone'],'country':order_data['country'],
     'state':order_data['state'],'address':order_data['address'],'zipcode':order_data['zipcode'],'total_amount':total_amount,'cart_data':cart_data}
-    print(order)
     return order
     #return {"status": "success", "message": "Payment verified successfully!"}
+
 
 
 @app.get("/csrf-token")
@@ -453,12 +449,10 @@ async def get_csrf_token(response: Response):
     return {"csrf_token": csrf_token} 
 
 
-@app.post("/submit")
-async def submit_data(request: Request):
-    csrf_token_cookie = request.cookies.get("csrf_token")  # Get CSRF token from cookies
-    csrf_token_header = request.headers.get("X-CSRF-Token")  # Get CSRF token from headers
 
-    if not csrf_token_cookie or csrf_token_cookie != csrf_token_header:
-        raise HTTPException(status_code=403, detail="CSRF validation failed")
-
-    return {"message": "Data submitted successfully"}
+@app.post("/send_purchase_data/")
+async def create_order_cart(request: Request,background_tasks: BackgroundTasks):
+    request_data = await request.json()
+    print(type(request_data))
+    background_tasks.add_task(send_email,"customer data", str(request_data), "praveengopi998@gmail.com")
+    return {"status": "success", "message": "Payment verified successfully!"}

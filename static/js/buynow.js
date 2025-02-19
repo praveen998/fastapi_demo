@@ -9,6 +9,7 @@ function sanitizeInput(input) {
 }
 
 
+
 let csrfToken = "";
 $.ajax({
     url: geturl() + "/csrf-token",
@@ -26,7 +27,6 @@ $.ajax({
 
 
 $(document).ready(function () {
-
             $(".submit-btn").click(function() {
                 alert('button clicked');
                 $.ajax({
@@ -35,7 +35,8 @@ $(document).ready(function () {
                     headers: {
                         "X-CSRF-Token": csrfToken
                     },
-                    success: function(response) {
+                    success: function(response) 
+                    {
                         alert(response.message);
                     },
                     error: function(xhr) {
@@ -43,6 +44,8 @@ $(document).ready(function () {
                     }
                 });
             });
+
+
 
     append_cart_item();
     let customer;
@@ -381,6 +384,8 @@ function retrieve_buynow_storage() {
     }
 
 }
+
+
 
 function get_stored_value() {
     const key = 'buynow_product';
