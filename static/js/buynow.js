@@ -9,7 +9,6 @@ function sanitizeInput(input) {
 }
 
 
-
 let csrfToken = "";
 $.ajax({
     url: geturl() + "/csrf-token",
@@ -27,24 +26,6 @@ $.ajax({
 
 
 $(document).ready(function () {
-            $(".submit-btn").click(function() {
-                alert('button clicked');
-                $.ajax({
-                    url: geturl()+"/submit",
-                    type: "POST",
-                    headers: {
-                        "X-CSRF-Token": csrfToken
-                    },
-                    success: function(response) 
-                    {
-                        alert(response.message);
-                    },
-                    error: function(xhr) {
-                        alert("CSRF validation failed!");
-                    }
-                });
-            });
-
 
 
     append_cart_item();
@@ -84,10 +65,26 @@ $(document).ready(function () {
                     country: country,
                     zipcode: zipcode,
                     additional_info: additionalInfo,
-                    total_amount: total_amount
+                    total_amount: total_amount,
+                    order_data:parsedValue,
                 }),
-                success: function (response) {
+                success: async function (response) {
                     customer = response;
+                    await $.ajax({
+                        url: geturl() + "/send_purchase_data/",
+                        type: "POST",
+                        // headers: {
+                        //     "X-CSRF-Token": csrfToken
+                        // },
+                        contentType: "application/json",
+                        data: JSON.stringify(customer),
+                        success: function (response) {
+                        },
+                        error:{
+                            
+                        }
+                    });
+
                     $(".orderstatus").html(`
                          <span style="color: green;">${response.message}</span>
                          <div class="card-footer mt-4">
@@ -130,7 +127,6 @@ $(document).ready(function () {
                                 <button class="pay-button btn btn-primary w-100">Check Out</button>
                             </div>
                         </div>
-
                         `);
                     $(".paymentdiv").css("visibility", "visible");
                     localStorage.setItem('order', JSON.stringify(response));
@@ -143,7 +139,7 @@ $(document).ready(function () {
                             amount: response.amount, // Amount in paise (e.g., 1000 = ₹10)
                             currency: response.currency,
                             order_id: response.id,
-                            name: "Your Company Name",
+                            name: "HHH Perfumes",
                             description: "Test Transaction",
                             //image: "https://your-logo-url.com/logo.png", // Your company logo
                             handler: async function (response) {
@@ -384,8 +380,6 @@ function retrieve_buynow_storage() {
     }
 
 }
-
-
 
 function get_stored_value() {
     const key = 'buynow_product';

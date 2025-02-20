@@ -275,6 +275,7 @@ async def delete_img_from_aws(s3client,S3_BUCKET_NAME,filename):
         return False
 
 
+
 @app.post("/add_new_product/")
 async def add_product(
     product_name: str = Form(...),
@@ -315,6 +316,7 @@ async def delete_product(req:Delete_product,user: dict = Depends(verify_admin_jw
         raise HTTPException(status_code=401, detail="no product name given")
 
 
+
 @app.get("/geolocation-by-ip")
 async def read_geolocation(request: Request):
     ip = request.client.host  # Get the client's IP address
@@ -326,35 +328,28 @@ async def read_geolocation(request: Request):
     return data
 
 
+
 @app.post("/create-order/")
 async def create_order(c_order:Create_Order,request: Request):
     csrf_token_cookie = request.cookies.get("csrf_token")  # Get CSRF token from cookies
     csrf_token_header = request.headers.get("X-CSRF-Token")  # Get CSRF token from headers
-
     if not csrf_token_cookie or csrf_token_cookie != csrf_token_header:
         raise HTTPException(status_code=403, detail="CSRF validation failed")
-
-    print('first_name:',c_order.first_name)
-    print('last_name',c_order.last_name)
-    print('email',c_order.email)
-    print('phone',c_order.phone)
-    print('country',c_order.country)
-    print('state',c_order.state)
-    print('address',c_order.address)
-    print('zipcode',c_order.zipcode)
-    print('additional_info',c_order.additional_info)
-    print('total_amount',c_order.total_amount)
+    
+    order_data=[]
+    order_data.append(c_order.order_data)
     try:
-        # Convert amount to paisa (Razorpay requires amount in paisa)
+
         order_payload = {
             "amount": int(c_order.total_amount * 100),  # Convert INR to paisa
             "currency": "INR",
             "payment_capture": 1,  # Auto-capture payment
         }
+
         # Create order
         order_out = razorpay_client.order.create(order_payload)
         order={'id':order_out['id'],'currency':order_out['currency'],'amount':order_out['amount'],"message": "Your Order is Ready Checkout Now..!",'first_name':c_order.first_name,'last_name':c_order.last_name,'email':c_order.email,'phone':c_order.phone,'country':c_order.country,
-        'state':c_order.state,'address':c_order.address,'zipcode':c_order.zipcode,'total_amount':c_order.total_amount}
+        'state':c_order.state,'address':c_order.address,'zipcode':c_order.zipcode,'total_amount':c_order.total_amount,'cart_data':order_data}
         return order
 
     except razorpay.errors.BadRequestError as e:
@@ -369,6 +364,7 @@ async def create_order(c_order:Create_Order,request: Request):
         raise HTTPException(status_code=500, detail=f"Razorpay Server Error: {str(e)}")
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Internal Server Error: {str(e)}")
+
 
 
 
@@ -446,13 +442,24 @@ async def get_csrf_token(response: Response):
         samesite="Strict",  # Prevent CSRF attacks
         secure=True  # Require HTTPS in production
     )
-    return {"csrf_token": csrf_token} 
+    return {"csrf_token": csrf_token}
+
 
 
 
 @app.post("/send_purchase_data/")
 async def create_order_cart(request: Request,background_tasks: BackgroundTasks):
     request_data = await request.json()
-    print(type(request_data))
-    background_tasks.add_task(send_email,"customer data", str(request_data), "praveengopi998@gmail.com")
+    #print("type of request_data:",type(request_data))
+    #print("customer purchase data:",request_data)
+   #background_tasks.add_task(send_email,"customer data", str(request_data), "praveengopi998@gmail.com")
     return {"status": "success", "message": "Payment verified successfully!"}
+
+
+
+
+
+
+
+
+

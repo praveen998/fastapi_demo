@@ -53,6 +53,7 @@ class Create_Order(BaseModel):
     zipcode:str
     additional_info: Optional[str]=None
     total_amount:int
+    order_data: Dict[str,Any]
 
 
 class PaymentData(BaseModel):

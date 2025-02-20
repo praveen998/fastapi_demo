@@ -51,10 +51,11 @@ $(document).ready(function () {
         $(".required").text('');
         let response = await $.ajax({
             url: geturl() + "/create-order-cart/",
-            type: "POST",
+            type: "POST",                         
             headers: {
                 "X-CSRF-Token": csrfToken
             },
+
             contentType: "application/json",
             data: JSON.stringify(requestData),
             success: async function (response) {
@@ -132,7 +133,12 @@ $(document).ready(function () {
                             name: "Your Company Name",
                             description: "Test Transaction",
                             //image: "https://your-logo-url.com/logo.png", // Your company logo
+                            
                             handler: async function (response) {
+
+                                // This function will be called after a successful payment
+                                //alert("Payment successful! Payment ID: " + res.razorpay_payment_id);
+                            
                             try{
                                 let verifyResponse = await fetch(geturl()+"/verify-payment/", {
                                     method: "POST",
@@ -146,10 +152,8 @@ $(document).ready(function () {
                                 });
                                 let result = await verifyResponse.json();
                                 if (verifyResponse.ok) {
-
-                                      
+                                    
                                     alert("✅ Payment Verified: " + result.message);
-
 
                                     $(".mainwindow").html(`
                                         <span style="color: green;">Your Order Created...! Thanks for Purchasing</span>
@@ -207,7 +211,7 @@ $(document).ready(function () {
                             },
                             notes: {
                                 address: response.address,
-                                zipcode: response.zipcode,
+                                zipcode: response.zipcode
                             },
                             theme: {
                                 color: "#F37254", // Customize the payment button color
@@ -301,10 +305,9 @@ $(document).ready(function () {
                 product.product_total -= product.product_price;
                 const count = $(this).closest('.col-8').find('.count');
                 count.text(`${product.product_count}`);
-
             }
-
         }
+
         saveCart();
         count_total_price();
     });
@@ -324,25 +327,20 @@ function loadCart() {
 }
 
 
+
 function append_cart_items() {
     loadCart();
     count_total_price();
     $(".items").text(`${cart.length} Items`);
     let itemHtml = ""; // Initialize empty HTML string
-
     for (let i = 0; i < cart.length; i++) {
         const item = cart[i];
         itemHtml += `
                             <div class="row align-items-center">
-        
                                 <div class="col-4 text-center">
                                     <img src=${item.product_src} alt="Blue Jeans Jacket" class="rounded-3">
                                 </div>
-                               
                                 <div class="col-8">
-                
-                               
-                            
                                     <span class="mb-0 text-price d-block">${item.product_price}</span>
                                     <p class="pname mb-0">${item.product_name}</p>
                                     <span>${item.product_description}</span>
@@ -352,16 +350,11 @@ function append_cart_items() {
                                         <button class="min btn btn-secondary btn-sm"  style="display: inline-block; margin-left: 1em;">-</button>
                                           <button class="remove float-start badge rounded-pill bg-primary"  style="display: inline-block; margin-left: 5em;">
                                           remove</button>
-                                
                                     </div><br>
-                                    
                                 </div>  
                             </div>
-                             
-                            <br>
-                
+                        <br>
             `;
-
     }
 
     // Inject the generated HTML into the container with ID 'carditems'
@@ -373,11 +366,12 @@ function saveCart() {
     localStorage.setItem('mycart', JSON.stringify(cart));
 }
 
+
+
 function count_total_price() {
     let total_price = 0;
     // loadCart();
     let itemHtml = ""; // Initialize empty HTML string
-
     for (let i = 0; i < cart.length; i++) {
         const item = cart[i];
         total_price += item.product_total;
