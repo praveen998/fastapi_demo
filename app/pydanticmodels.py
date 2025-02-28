@@ -49,6 +49,7 @@ class Create_Order(BaseModel):
     phone: str
     country: str
     state:str
+    city:str
     address:str
     zipcode:str
     additional_info: Optional[str]=None
@@ -63,6 +64,7 @@ class PaymentData(BaseModel):
     phone: str
     country: str
     state:str
+    city:str
     address:str
     zipcode:str
     additional_info: Optional[str]=None

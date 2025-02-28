@@ -70,7 +70,7 @@ s3_client = boto3.client(
 )
 
 
-razorpay_client = razorpay.Client(auth=("rzp_test_b9S6cM2RxVtasJ","anAKj9HwZwnd2KowSRG36jJx"))
+razorpay_client = razorpay.Client(auth=("rzp_test_2SSqGlsTH8Gc2X","3wpzNPoPk10dpsPAqiFHqlN2"))
 
 @app.on_event("startup")
 async def startup_event():
@@ -345,11 +345,10 @@ async def create_order(c_order:Create_Order,request: Request):
             "currency": "INR",
             "payment_capture": 1,  # Auto-capture payment
         }
-
         # Create order
         order_out = razorpay_client.order.create(order_payload)
         order={'id':order_out['id'],'currency':order_out['currency'],'amount':order_out['amount'],"message": "Your Order is Ready Checkout Now..!",'first_name':c_order.first_name,'last_name':c_order.last_name,'email':c_order.email,'phone':c_order.phone,'country':c_order.country,
-        'state':c_order.state,'address':c_order.address,'zipcode':c_order.zipcode,'total_amount':c_order.total_amount,'cart_data':order_data}
+        'state':c_order.state,'city':c_order.city,'address':c_order.address,'zipcode':c_order.zipcode,'total_amount':c_order.total_amount,'cart_data':order_data}
         return order
 
     except razorpay.errors.BadRequestError as e:
@@ -372,7 +371,7 @@ async def create_order(c_order:Create_Order,request: Request):
 async def verify_payment(data: VerifyPaymentRequest):
     try:
         # Concatenate order_id and payment_id as per Razorpay docs
-        generated_signature = hmac.new("anAKj9HwZwnd2KowSRG36jJx".encode(),
+        generated_signature = hmac.new("3wpzNPoPk10dpsPAqiFHqlN2".encode(),
             f"{data.razorpay_order_id}|{data.razorpay_payment_id}".encode(),
             hashlib.sha256
         ).hexdigest()
@@ -426,7 +425,7 @@ async def create_order_cart(request: Request):
      
     order_out = razorpay_client.order.create(order_payload)
     order={'id':order_out['id'],'currency':order_out['currency'],'amount':order_out['amount'],"message": "Your Order is Ready Checkout Now..!",'first_name':order_data['first_name'],'last_name':order_data['last_name'],'email':order_data['email'],'phone':order_data['phone'],'country':order_data['country'],
-    'state':order_data['state'],'address':order_data['address'],'zipcode':order_data['zipcode'],'total_amount':total_amount,'cart_data':cart_data}
+    'state':order_data['state'],'city':order_data['city'],'address':order_data['address'],'zipcode':order_data['zipcode'],'total_amount':total_amount,'cart_data':cart_data}
     return order
     #return {"status": "success", "message": "Payment verified successfully!"}
 

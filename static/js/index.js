@@ -105,8 +105,8 @@ $(document).ready(function () {
                     var productPrice = parseInt(productPrice.replace(/[₹,]/g, ''));
                     create_buynow_storage(productName, productImageSrc, productPrice, productDescription)
                     window.location.href = geturl() + "/buynow";
-    
                 });
+                
 
                 $('#grid-container').on('click', '#addcart', function (e) {
                     e.preventDefault();
@@ -173,6 +173,7 @@ function generate_product_cards(selectedV) {
                 window.location.href = geturl() + "/cart";
             });
         },
+
 
         error: function (xhr, status, error) {
             console.error("Error fetching text:", error);
