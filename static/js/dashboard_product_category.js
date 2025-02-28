@@ -109,7 +109,7 @@ $(document).ready(function () {
         }
 
         else if(page==="edit_product"){
-            //window.location.href = geturl()+"/edit_product_page";
+            
             edit_product=`
             <div>filter product:  
             <select class="form-select form-select-lg edit_product_category" id="styledSelect">
