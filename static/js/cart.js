@@ -15,7 +15,7 @@ $.ajax({
     success: (data) => {
         console.log("CSRF Token Response:", data);
         csrfToken = data?.csrf_token || "Not Found";
-        
+
     },
     error: (xhr, status, error) => {
         console.error("Error fetching CSRF token:", xhr.responseText);
@@ -414,24 +414,25 @@ function append_cart_items() {
     for (let i = 0; i < cart.length; i++) {
         const item = cart[i];
         itemHtml += `
-                            <div class="row align-items-center">
-                                <div class="col-4 text-center">
-                                    <img src=${item.product_src} alt="Blue Jeans Jacket" class="rounded-3">
-                                </div>
-                                <div class="col-8">
-                                    <span class="mb-0 text-price d-block">${item.product_price}</span>
-                                    <p class="pname mb-0">${item.product_name}</p>
-                                    <span>${item.product_description}</span>
-                                    <div class="d-flex align-items-center mt-3">
-                                        <button class="max btn btn-primary btn-sm me-2">+</button>
-                                         <div class="count mt-2">${item.product_count}</div>
-                                        <button class="min btn btn-secondary btn-sm"  style="display: inline-block; margin-left: 1em;">-</button>
-                                          <button class="remove float-start badge rounded-pill bg-primary"  style="display: inline-block; margin-left: 5em;">
-                                          remove</button>
-                                    </div><br>
-                                </div>  
-                            </div>
-                        <br>
+    <div class="row align-items-center">
+      <div class="col-4 text-center">
+          <img src=${item.product_src} 
+          alt="Blue Jeans Jacket" class="rounded-3">
+      </div>
+      <div class="col-8">
+          <span class="mb-0 text-price d-block">${item.product_price}</span>
+          <p class="pname mb-0 ">${item.product_name}</p>
+          <span>${item.product_description}</span>
+          <div class="d-flex align-items-center mt-3">
+               <button class="max btn btn-primary btn-sm me-2">+</button>
+              <div class="count mt-2 fw-bold">${item.product_count}</div>
+              <button class="min btn btn-secondary btn-sm ms-2">-</button>
+              <button class="remove float-start badge rounded-pill bg-danger" style="display: inline-block; margin-left: 5em;">Remove</button>
+          </div><br>
+      </div>  
+  </div>
+  <br>
+
             `;
     }
 

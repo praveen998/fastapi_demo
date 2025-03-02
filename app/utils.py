@@ -89,27 +89,34 @@ async def create_new_html(msg,country_name):
             c+=1
        
         htmlcode+=f""" 
-               <div class="col">
-    <div class="card h-100 shadow-sm"> 
-        <img id="product_image"
-             src="{prod[3]}" 
-             class="card-img-top"
-             alt="..."
-             data-bs-toggle="modal" 
-             data-bs-target="#imageModal">
+    <div class="col">
+    <div class="card h-100 shadow-sm" style="background: linear-gradient(135deg, #ff4d4d, #990000); color: white; border: none;">
+       <img id="product_image"
+     src="{prod[3]}" 
+     class="card-img-top"
+     alt="..."
+     data-bs-toggle="modal" 
+     data-bs-target="#imageModal"
+     style="border-radius: 10px; object-fit: cover;">
         <div class="card-body">
             <div class="clearfix mb-3"> 
-               <span class="float-start badge rounded-pill bg-primary" id="product_name" style="font-size: 1rem; padding: 7px 10px;">{prod[0]}</span> 
+               <span class="float-start badge rounded-pill bg-light text-dark" id="product_name" 
+                     style="font-size: 1rem; padding: 7px 10px;">{prod[0]}</span> 
 
-                <span class="float-end price-hp" id="product_price">{prod[2][cname]}₹</span> 
+                <span class="float-end price-hp fw-bold text-warning" id="product_price">{prod[2][cname]}₹</span> 
             </div>
-            <h5 class="card-title" id="product_description" style="font-weight: 400;">{prod[1]}</h5>
+            <h5 class="card-title" id="product_description" style="font-weight: 400; color: white;">{prod[1]}</h5>
 
             <div class="text-center my-4"> 
-                <a href="#" class="btn btn-warning" id="buynow">Buy Now</a> 
+                <a href="#" class="btn" id="buynow" 
+                   style="background: #ffcc00; color: #990000; font-weight: bold; border-radius: 8px;">
+                   Buy Now
+                </a> 
             </div>
             <div class="text-center my-4"> 
-                <a href="#" class="float-end price-hp" style="text-decoration: none;" id="addcart">Add To Cart</a> 
+                <a href="#" class="float-end text-white fw-bold" style="text-decoration: none; color: white;" id="addcart">
+                   Add To Cart
+                </a> 
             </div>
         </div>
     </div>
@@ -118,17 +125,18 @@ async def create_new_html(msg,country_name):
 <!-- Bootstrap Modal -->
 <div class="modal fade" id="imageModal" tabindex="-1" aria-labelledby="imageModalLabel" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered">
-        <div class="modal-content">
+        <div class="modal-content" style="background: #990000; color: white;">
             <div class="modal-header">
                 <h5 class="modal-title" id="imageModalLabel">{prod[0]}</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body text-center">
-                <img id="modalImage" src="{prod[3]}" class="img-fluid" alt="Product Image">
+                <img id="modalImage" src="{prod[3]}" class="img-fluid" alt="Product Image" style="border-radius: 10px;">
             </div>
         </div>
     </div>
 </div>
+
 
            """
     return htmlcode

@@ -89,7 +89,7 @@ $(document).ready(function () {
 
                     $(".orderstatus").html(`
                          <span style="color: green;">${response.message}</span>
-                         <div class="card-footer mt-4">
+                         <div class=" mt-4">
                             <ul class="list-group list-group-flush">
                              <li class="list-group-item d-flex justify-content-between align-items-center border-0 px-0 pb-0 text-muted">
                                    Order id
@@ -356,6 +356,12 @@ $(document).ready(function () {
                 }
             });
         }
+    });
+
+
+
+    $("#cart").click(function () {
+        window.location.href = geturl() + "/cart";
     });
     
 

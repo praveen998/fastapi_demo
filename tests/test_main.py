@@ -1,11 +1,11 @@
-from fastapi.testclient import TestClient
-from app.main import app
-client=TestClient(app)
-from app.utils import create_new_html
-import pytest
-from httpx import AsyncClient
-from unittest.mock import AsyncMock
-from app.models import insert_category
+# from fastapi.testclient import TestClient
+# from app.main import app
+# client=TestClient(app)
+# from app.utils import create_new_html
+# import pytest
+# from httpx import AsyncClient
+# from unittest.mock import AsyncMock
+# from app.models import insert_category
 
 # def test_root():
 #     response=client.get("/")
