@@ -9,25 +9,24 @@ function sanitizeInput(input) {
 }
 
 
-let csrfToken = "";
-$.ajax({
-    url: geturl() + "/csrf-token",
-    type: "GET",
-    success: (data) => {
-        console.log("CSRF Token Response:", data);
-        csrfToken = data?.csrf_token || "Not Found";
+
+// let csrfToken = "";
+// $.ajax({
+//     url: geturl() + "/csrf-token",
+//     type: "GET",
+//     success: (data) => {
+//         console.log("CSRF Token Response:", data);
+//         csrfToken = data?.csrf_token || "Not Found";
         
-    },
-    error: (xhr, status, error) => {
-        console.error("Error fetching CSRF token:", xhr.responseText);
-    }
-});
+//     },
+//     error: (xhr, status, error) => {
+//         console.error("Error fetching CSRF token:", xhr.responseText);
+//     }
+// });
 
 
 
 $(document).ready(function () {
-
-
     append_cart_item();
     let customer;
     $('.placeorder').click(async function () {
@@ -53,7 +52,6 @@ $(document).ready(function () {
                 url: geturl() + "/create-order/",
                 type: "POST",
                 headers: {
-                    "X-CSRF-Token": csrfToken
                 },
                 contentType: "application/json",
                 data: JSON.stringify({
@@ -75,9 +73,9 @@ $(document).ready(function () {
                     await $.ajax({
                         url: geturl() + "/send_purchase_data/",
                         type: "POST",
-                        // headers: {
-                        //     "X-CSRF-Token": csrfToken
-                        // },
+                        headers: {
+                           
+                        },
                         contentType: "application/json",
                         data: JSON.stringify(customer),
                         success: function (response) {
