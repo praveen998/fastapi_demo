@@ -1,19 +1,10 @@
 
 function seturl() {
-    localStorage.setItem("fasturl", "https://7a39-103-203-72-104.ngrok-free.app");
+    localStorage.setItem("fasturl", "http://127.0.0.1:8000");
 }
 
 function geturl() {
     url = localStorage.getItem("fasturl");
-    return url;
-}
-
-function setweburl() {
-    localStorage.setItem("weburl", "https://7a39-103-203-72-104.ngrok-free.app");
-}
-
-function getweburl() {
-    url = localStorage.getItem("weburl");
     return url;
 }
 
@@ -26,7 +17,41 @@ function getselectedvalue() {
     selectedValue = localStorage.getItem("selectedValue");
     return selectedValue;
 }
+
+
+
+
+$.ajax({
+    url: geturl() + "/csrf-token",  // Call FastAPI endpoint to set CSRF cookie
+    type: "GET",
+    success: (data) => {
+        console.log("CSRF Token Response:", data.message);
+        console.log("CSRF token is stored in an HttpOnly cookie by the server.");
+    },
+    error: (xhr, status, error) => {
+        console.error("Error fetching CSRF token:", xhr.responseText);
+    }
+});
+
+
+// let csrfToken = "";
+// $.ajax({
+//     url: geturl() + "/csrf-token",
+//     type: "GET",
+//     success: (data) => {
+//         console.log("CSRF Token Response:", data);
+//         csrfToken = data?.csrf_token || "Not Found";
+//         document.cookie = `csrf_token=${csrfToken}; path=/; Secure; HttpOnly`;
+//     },
+//     error: (xhr, status, error) => {
+//         console.error("Error fetching CSRF token:", xhr.responseText);
+//     }
+// });
+
+
 seturl();
+
+
 
 
 $.ajax({
@@ -53,10 +78,11 @@ $.ajax({
 });
 
 $("#styledSelect").val("YourCategoryValue").change();
-$(document).ready(function () {
 
-    loadCart();
+
+$(document).ready(function () {
     saveCart();
+    loadCart();
     update_cart_logo();
 
     $("#cart").click(function () {

@@ -99,22 +99,13 @@ async def home(request: Request, background_tasks: BackgroundTasks):
    # background_tasks.add_task(send_email,"Test Subject", "This is a test email body.", "praveengopi998@gmail.com")
     return templates.TemplateResponse("index.html", {"request": request})
 
-
-@app.get("/buynow", response_class=HTMLResponse)
-async def buynow(request: Request):
+@app.get("/buynow",response_class=HTMLResponse)
+async def dashboard(request: Request):
     return templates.TemplateResponse("buynow.html", {"request": request})
 
-
-@app.get("/cart", response_class=HTMLResponse)
-async def cart(request: Request):
+@app.get("/cart",response_class=HTMLResponse)
+async def dashboard(request: Request):
     return templates.TemplateResponse("cart.html", {"request": request})
-
-
-@app.post("/employee/")
-async def create_eployee(emp:Employee):
-    print('type of age:',type(emp.age))
-    print('type of name:',type(emp.name))
-    return {'message':f'employee{emp.name} has been created','data':emp}
 
 
 @app.get("/admin",response_class=HTMLResponse)
@@ -335,14 +326,14 @@ async def read_geolocation(request: Request):
         print(data['country'])
     return data
 
-
-
+    
 @app.post("/create-order/")
 async def create_order(c_order:Create_Order,request: Request):
     csrf_token_cookie = request.cookies.get("csrf_token")  # Get CSRF token from cookies
     csrf_token_header = request.headers.get("X-CSRF-Token")  # Get CSRF token from headers
     if not csrf_token_cookie or csrf_token_cookie != csrf_token_header:
         raise HTTPException(status_code=403, detail="CSRF validation failed")
+    
     order_data=[]
     order_data.append(c_order.order_data)
     try:
@@ -442,10 +433,10 @@ async def get_csrf_token(response: Response):
         key="csrf_token",
         value=csrf_token,
         httponly=True,  # Prevent JavaScript access
-        samesite="Strict",  # Prevent CSRF attacks
-        secure=True  # Require HTTPS in production
+        secure=True,    # Require HTTPS
+        samesite="Strict"  # Prevent cross-site requests
     )
-    return {"csrf_token": csrf_token}
+    return {"message": "CSRF token set in cookies"}
 
 
 
