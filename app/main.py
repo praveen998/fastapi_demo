@@ -41,21 +41,14 @@ app.mount("/static", StaticFiles(directory="static"), name="static")
 
 
 
-# app.add_middleware(
-#     CORSMiddleware,
-#     allow_origins=["https://7a39-103-203-72-104.ngrok-free.app", "https://free.nibhasserver.free.nf"],  # Allowed domains
-#     allow_credentials=True,
-#     allow_methods=["GET", "POST", "PUT", "DELETE", "OPTIONS"],  # Allowed HTTP methods
-#     allow_headers=["Authorization", "Content-Type"],  # Allowed headers
-# )
-
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["https://7a39-103-203-72-104.ngrok-free.app", "https://free.nibhasserver.free.nf"],   # Allowed domains
+    allow_origins=["*"],  # Replace "*" with specific domains if needed
     allow_credentials=True,
-    allow_methods=["*"],  # Allowed HTTP methods
-    allow_headers=["*"],  # Allowed headers
+    allow_methods=["*"],
+    allow_headers=["*"],
 )
+
 
 init_ormdb()
 load_dotenv()
@@ -77,9 +70,6 @@ s3_client = boto3.client(
 )
 
 
-country_name=""
-
-
 razorpay_client = razorpay.Client(auth=("rzp_test_2SSqGlsTH8Gc2X","3wpzNPoPk10dpsPAqiFHqlN2"))
 
 @app.on_event("startup")
@@ -91,6 +81,8 @@ async def startup_event():
 async def shutdown_event():
     await close_db()
 
+
+country_name=""
 
 
 
@@ -329,14 +321,24 @@ async def read_geolocation(request: Request):
     
 @app.post("/create-order/")
 async def create_order(c_order:Create_Order,request: Request):
-    csrf_token_cookie = request.cookies.get("csrf_token")  # Get CSRF token from cookies
-    csrf_token_header = request.headers.get("X-CSRF-Token")  # Get CSRF token from headers
-    if not csrf_token_cookie or csrf_token_cookie != csrf_token_header:
-        raise HTTPException(status_code=403, detail="CSRF validation failed")
+    token_from_cookie = request.cookies.get("csrf_token")
+    token_from_header = request.headers.get("X-CSRF-Token") 
+    
+    if not token_from_cookie:
+        raise HTTPException(status_code=403, detail="Missing CSRF token in cookies")
+
+    # (Optional) If using a double-submit method, ensure it matches
+    if token_from_header and token_from_cookie != token_from_header:
+        raise HTTPException(status_code=403, detail="CSRF token mismatch")
+      
+    
+    print('csrf_token_cookie:',token_from_cookie)
+    print('csrf_token_header:',token_from_header)
     
     order_data=[]
     order_data.append(c_order.order_data)
     try:
+
         order_payload = {
             "amount": int(c_order.total_amount * 100),  # Convert INR to paisa
             "currency": "INR",
@@ -372,6 +374,7 @@ async def verify_payment(data: VerifyPaymentRequest):
             f"{data.razorpay_order_id}|{data.razorpay_payment_id}".encode(),
             hashlib.sha256
         ).hexdigest()
+
         # Compare with Razorpay's signature
         if generated_signature == data.razorpay_signature:
             return {"status": "success", "message": "Payment verified successfully!"}
@@ -386,11 +389,17 @@ async def verify_payment(data: VerifyPaymentRequest):
 
 @app.post("/create-order-cart/")
 async def create_order_cart(request: Request):
-    csrf_token_cookie = request.cookies.get("csrf_token")  # Get CSRF token from cookies
-    csrf_token_header = request.headers.get("X-CSRF-Token")  # Get CSRF token from headers
+    token_from_cookie = request.cookies.get("csrf_token")
+    token_from_header = request.headers.get("X-CSRF-Token") 
+    
+    if not token_from_cookie:
+        raise HTTPException(status_code=403, detail="Missing CSRF token in cookies")
 
-    if not csrf_token_cookie or csrf_token_cookie != csrf_token_header:
-        raise HTTPException(status_code=403, detail="CSRF validation failed")
+    # (Optional) If using a double-submit method, ensure it matches
+    if token_from_header and token_from_cookie != token_from_header:
+        raise HTTPException(status_code=403, detail="CSRF token mismatch")
+      
+
     request_data = await request.json()
     order_data = request_data.get("order", {})
     cart_data = request_data.get("cart", [])
@@ -448,7 +457,6 @@ async def create_order_cart(request: Request,background_tasks: BackgroundTasks):
     #print("customer purchase data:",request_data)
    #background_tasks.add_task(send_email,"customer data", str(request_data), "praveengopi998@gmail.com")
     return {"status": "success", "message": "Payment verified successfully!"}
-
 
 
 
