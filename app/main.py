@@ -41,14 +41,21 @@ app.mount("/static", StaticFiles(directory="static"), name="static")
 
 
 
+# app.add_middleware(
+#     CORSMiddleware,
+#     allow_origins=["https://7a39-103-203-72-104.ngrok-free.app", "https://free.nibhasserver.free.nf"],  # Allowed domains
+#     allow_credentials=True,
+#     allow_methods=["GET", "POST", "PUT", "DELETE", "OPTIONS"],  # Allowed HTTP methods
+#     allow_headers=["Authorization", "Content-Type"],  # Allowed headers
+# )
+
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],  # Replace "*" with specific domains if needed
+    allow_origins=["https://7a39-103-203-72-104.ngrok-free.app", "https://free.nibhasserver.free.nf"],   # Allowed domains
     allow_credentials=True,
-    allow_methods=["*"],
-    allow_headers=["*"],
+    allow_methods=["*"],  # Allowed HTTP methods
+    allow_headers=["*"],  # Allowed headers
 )
-
 
 init_ormdb()
 load_dotenv()
@@ -70,6 +77,9 @@ s3_client = boto3.client(
 )
 
 
+country_name=""
+
+
 razorpay_client = razorpay.Client(auth=("rzp_test_2SSqGlsTH8Gc2X","3wpzNPoPk10dpsPAqiFHqlN2"))
 
 @app.on_event("startup")
@@ -81,8 +91,6 @@ async def startup_event():
 async def shutdown_event():
     await close_db()
 
-
-country_name=""
 
 
 
@@ -335,11 +343,9 @@ async def create_order(c_order:Create_Order,request: Request):
     csrf_token_header = request.headers.get("X-CSRF-Token")  # Get CSRF token from headers
     if not csrf_token_cookie or csrf_token_cookie != csrf_token_header:
         raise HTTPException(status_code=403, detail="CSRF validation failed")
-    
     order_data=[]
     order_data.append(c_order.order_data)
     try:
-
         order_payload = {
             "amount": int(c_order.total_amount * 100),  # Convert INR to paisa
             "currency": "INR",
@@ -375,7 +381,6 @@ async def verify_payment(data: VerifyPaymentRequest):
             f"{data.razorpay_order_id}|{data.razorpay_payment_id}".encode(),
             hashlib.sha256
         ).hexdigest()
-
         # Compare with Razorpay's signature
         if generated_signature == data.razorpay_signature:
             return {"status": "success", "message": "Payment verified successfully!"}
@@ -395,7 +400,6 @@ async def create_order_cart(request: Request):
 
     if not csrf_token_cookie or csrf_token_cookie != csrf_token_header:
         raise HTTPException(status_code=403, detail="CSRF validation failed")
-
     request_data = await request.json()
     order_data = request_data.get("order", {})
     cart_data = request_data.get("cart", [])

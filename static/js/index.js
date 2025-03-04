@@ -1,10 +1,19 @@
 
 function seturl() {
-    localStorage.setItem("fasturl", "http://127.0.0.1:8000");
+    localStorage.setItem("fasturl", "https://7a39-103-203-72-104.ngrok-free.app");
 }
 
 function geturl() {
     url = localStorage.getItem("fasturl");
+    return url;
+}
+
+function setweburl() {
+    localStorage.setItem("weburl", "https://7a39-103-203-72-104.ngrok-free.app");
+}
+
+function getweburl() {
+    url = localStorage.getItem("weburl");
     return url;
 }
 
@@ -20,8 +29,6 @@ function getselectedvalue() {
 seturl();
 
 
-
-
 $.ajax({
     url: geturl() + "/list_category",
     method: "GET",
@@ -32,7 +39,6 @@ $.ajax({
         selectElement.append( `<option value="#">Select Category</option>`)
         if (getselectedvalue() === null) {
             setselectedvalue(data[0].categories);
-           
         }
         data.forEach(option => {
             selectElement.append(
@@ -54,7 +60,7 @@ $(document).ready(function () {
     update_cart_logo();
 
     $("#cart").click(function () {
-        window.location.href = geturl() + "/cart";
+        window.location.href = geturl() +"/cart";
     });
 
 
@@ -133,7 +139,6 @@ $(document).ready(function () {
 });
 
 
-
 function generate_product_cards(selectedV) {
     const data = { "category": `${selectedV}` };
 
@@ -158,7 +163,6 @@ function generate_product_cards(selectedV) {
                 window.location.href = geturl() + "/buynow";
 
             });
-
 
             $('#grid-container').on('click', '#addcart', function (e) {
                 e.preventDefault();

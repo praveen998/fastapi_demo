@@ -2,7 +2,8 @@ from aiomysql import create_pool,Error,DictCursor
 from fastapi import Depends
 import os 
 from dotenv import load_dotenv
-from sqlalchemy import Column, Integer, String, Boolean,ForeignKey,JSON
+from sqlalchemy import Column, Integer, String, Boolean,ForeignKey,JSON,DateTime
+from datetime import datetime
 from app.database import Base
 import json
 
@@ -51,9 +52,18 @@ class Payment_details(Base):
       __tablename__ = "payment_details"
 
       id =Column(Integer,primary_key=True,index=True)
+      payment_id=Column(String(100),unique=True,nullable=False,index=True)
       product_purchase_list=Column(JSON)
+      customer_name=Column(String(100))
+      phone=Column(String(15))
+      email=Column(String(100))
+      country=Column(String(100))
+      state=Column(String(100))
+      city=Column(String(100))
+      address=Column(String(200))
       total_amount=Column(Integer)
-      client_payment_id=Column(String(100),ForeignKey("client_payment.payment_id"))
+      payment_date = Column(DateTime, default=datetime.utcnow)  
+      
 
 
 load_dotenv()

@@ -16,7 +16,7 @@ $.ajax({
     success: (data) => {
         console.log("CSRF Token Response:", data);
         csrfToken = data?.csrf_token || "Not Found";
-        
+        document.cookie = `csrf_token=${csrfToken}; path=/; Secure; HttpOnly`;
     },
     error: (xhr, status, error) => {
         console.error("Error fetching CSRF token:", xhr.responseText);
@@ -25,9 +25,8 @@ $.ajax({
 
 
 
+
 $(document).ready(function () {
-
-
     append_cart_item();
     let customer;
     $('.placeorder').click(async function () {
@@ -45,12 +44,11 @@ $(document).ready(function () {
         const storedValues = localStorage.getItem(keys);
         let parsedValue = JSON.parse(storedValues);
         let total_amount = parsedValue.product_total;
-
         if (firstName && lastName && email && country && phone && state && address && zipcode) {
             //alert(`${total_amount}`);
             $(".required").text('');
             let response = await $.ajax({
-                url: geturl() + "/create-order/",
+                url: geturl()+"/create-order/",
                 type: "POST",
                 headers: {
                     "X-CSRF-Token": csrfToken
@@ -138,9 +136,9 @@ $(document).ready(function () {
                             </div>
                         </div>
                         `);
+
                     $(".paymentdiv").css("visibility", "visible");
                     localStorage.setItem('order', JSON.stringify(response));
-
                     $(".pay-button").click(function (e) {
                         e.preventDefault();
                         alert('paymentbutton clicked');
@@ -155,12 +153,12 @@ $(document).ready(function () {
                             handler: async function (response) {
                                 // This function will be called after a successful payment
                                 //alert("Payment successful! Payment ID: " + res.razorpay_payment_id);
+
                             try{
                                 let verifyResponse = await fetch(geturl()+"/verify-payment/", {
                                     method: "POST",
                                     headers: { "Content-Type": "application/json" },
                                     body: JSON.stringify({
-                                        //customer:JSON.stringify(customer),
                                         razorpay_order_id: response.razorpay_order_id,
                                         razorpay_payment_id: response.razorpay_payment_id,
                                         razorpay_signature: response.razorpay_signature
@@ -224,7 +222,7 @@ $(document).ready(function () {
                             } catch (error) {
                                 alert("❌ Error initializing payment: " + error.message);
                             }
-                              
+                            
                             },
 
                             prefill: {
@@ -259,7 +257,6 @@ $(document).ready(function () {
         else {
             $(".required").text('error:fill every field...');
         }
-
     });
 
 
@@ -276,20 +273,6 @@ $(document).ready(function () {
         c = minimize_price();
         $("#count").text(`${c}`);
     });
-
-    // var countries = [
-    //     { id: "US", text: "United States" },
-    //     { id: "CA", text: "Canada" },
-    //     { id: "GB", text: "United Kingdom" },
-    //     { id: "IN", text: "India" },
-    //     { id: "AU", text: "Australia" },
-    //     { id: "DE", text: "Germany" },
-    //     { id: "FR", text: "France" },
-    //     { id: "IT", text: "Italy" },
-    //     { id: "ES", text: "Spain" },
-    //     { id: "MX", text: "Mexico" },
-    //     // Add more countries here as needed
-    // ];
 
     var countrySelect = $('#country');
     $.get("https://countriesnow.space/api/v0.1/countries", function(data) {
@@ -363,7 +346,6 @@ $(document).ready(function () {
     $("#cart").click(function () {
         window.location.href = geturl() + "/cart";
     });
-    
 
 });
 
