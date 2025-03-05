@@ -279,9 +279,6 @@ $(document).ready(function () {
             $('#country').append(`<option value="${country.country}">${country.country}</option>`);
         });
     });
-    // countries.forEach(function (country) {
-    //     countrySelect.append('<option value="' + country.id + '">' + country.text + '</option>');
-    // });
 
     $('#country').change(function() {
        

@@ -1,4 +1,4 @@
-from fastapi import FastAPI,HTTPException,Request,Form, File, UploadFile,BackgroundTasks
+from fastapi import FastAPI,HTTPException,Request,Form, File, UploadFile,BackgroundTasks,Header
 from fastapi.responses import PlainTextResponse
 from fastapi.responses import HTMLResponse
 from fastapi.responses import FileResponse
@@ -43,7 +43,7 @@ app.mount("/static", StaticFiles(directory="static"), name="static")
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],  # Replace "*" with specific domains if needed
+    allow_origins=["https://fd9b-45-115-89-150.ngrok-free.app","https://free.nibhasserver.free.nf"],  # Replace "*" with specific domains if needed
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -320,20 +320,18 @@ async def read_geolocation(request: Request):
 
     
 @app.post("/create-order/")
-async def create_order(c_order:Create_Order,request: Request):
+async def create_order(c_order:Create_Order,request: Request,csrf_header: str = Header(None)):
     token_from_cookie = request.cookies.get("csrf_token")
-    token_from_header = request.headers.get("X-CSRF-Token") 
+    print('csrf_token_cookie:',token_from_cookie)
+    print('csrf_token_header:',csrf_header)
     
     if not token_from_cookie:
         raise HTTPException(status_code=403, detail="Missing CSRF token in cookies")
 
     # (Optional) If using a double-submit method, ensure it matches
-    if token_from_header and token_from_cookie != token_from_header:
+    if csrf_header and token_from_cookie != token_from_header:
         raise HTTPException(status_code=403, detail="CSRF token mismatch")
       
-    
-    print('csrf_token_cookie:',token_from_cookie)
-    print('csrf_token_header:',token_from_header)
     
     order_data=[]
     order_data.append(c_order.order_data)
@@ -391,6 +389,9 @@ async def verify_payment(data: VerifyPaymentRequest):
 async def create_order_cart(request: Request):
     token_from_cookie = request.cookies.get("csrf_token")
     token_from_header = request.headers.get("X-CSRF-Token") 
+    print('csrf_token_cookie:',token_from_cookie)
+    print('csrf_token_header:',token_from_header)
+    
     
     if not token_from_cookie:
         raise HTTPException(status_code=403, detail="Missing CSRF token in cookies")
