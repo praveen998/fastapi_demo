@@ -43,8 +43,8 @@ app.mount("/static", StaticFiles(directory="static"), name="static")
 
 app.add_middleware(
     CORSMiddleware,
-   # allow_origins=["http://ec2-3-110-174-115.ap-south-1.compute.amazonaws.com","http://souparnikahaircare.com"],  # Replace "*" with specific domains if needed
-    allow_origins=["*"],  # Replace "*" with specific domains if needed
+    allow_origins=["http://ec2-3-110-174-115.ap-south-1.compute.amazonaws.com","http://souparnikahaircare.com"],  # Replace "*" with specific domains if needed
+   # allow_origins=["*"],  # Replace "*" with specific domains if needed
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -269,7 +269,7 @@ async def delete_img_from_aws(s3client,S3_BUCKET_NAME,filename):
 
 
 @app.post("/add_new_product/")
-async def add_product(
+async def add_product(user: dict = Depends(verify_admin_jwt_token),
     product_name: str = Form(...),
     product_description: Optional[str] = Form(None),
     india_price: float = Form(...),
@@ -290,7 +290,7 @@ async def add_product(
         "category": category,
         "product_image_url": filename
     }
-    
+
     msg=await insert_product_details(product)
     print(type(product['product_name']))
     print(type(product['category']))
