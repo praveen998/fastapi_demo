@@ -269,7 +269,7 @@ async def delete_img_from_aws(s3client,S3_BUCKET_NAME,filename):
 
 
 @app.post("/add_new_product/")
-async def add_product(
+async def add_product(user: dict = Depends(verify_admin_jwt_token),
     product_name: str = Form(...),
     product_description: Optional[str] = Form(None),
     india_price: float = Form(...),
