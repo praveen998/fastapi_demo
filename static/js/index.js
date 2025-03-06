@@ -1,6 +1,6 @@
 
 function seturl() {
-    localStorage.setItem("fasturl", "http://127.0.0.1:8000");
+    localStorage.setItem("fasturl", "https://ec2-3-110-174-115.ap-south-1.compute.amazonaws.com");
 }
 
 function geturl() {
