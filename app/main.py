@@ -43,7 +43,8 @@ app.mount("/static", StaticFiles(directory="static"), name="static")
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["https://fd9b-45-115-89-150.ngrok-free.app","https://free.nibhasserver.free.nf"],  # Replace "*" with specific domains if needed
+    allow_origins=["http://ec2-3-110-174-115.ap-south-1.compute.amazonaws.com","http://souparnikahaircare.com"],  # Replace "*" with specific domains if needed
+   # allow_origins=["*"],  # Replace "*" with specific domains if needed
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -320,18 +321,19 @@ async def read_geolocation(request: Request):
 
     
 @app.post("/create-order/")
-async def create_order(c_order:Create_Order,request: Request,csrf_header: str = Header(None)):
-    token_from_cookie = request.cookies.get("csrf_token")
-    print('csrf_token_cookie:',token_from_cookie)
-    print('csrf_token_header:',csrf_header)
+async def create_order(c_order:Create_Order,request: Request):
+    # token_from_cookie = request.cookies.get("csrf_token")
+    # token_from_header = request.headers.get("X-CSRF-Token") 
+    # print('csrf_token_cookie:',token_from_cookie)
+    # print('csrf_token_header:',token_from_header)
     
-    if not token_from_cookie:
-        raise HTTPException(status_code=403, detail="Missing CSRF token in cookies")
+    
+    # if not token_from_cookie:
+    #     raise HTTPException(status_code=403, detail="Missing CSRF token in cookies")
 
-    # (Optional) If using a double-submit method, ensure it matches
-    if csrf_header and token_from_cookie != token_from_header:
-        raise HTTPException(status_code=403, detail="CSRF token mismatch")
-      
+    # # (Optional) If using a double-submit method, ensure it matches
+    # if token_from_header and token_from_cookie != token_from_header:
+    #     raise HTTPException(status_code=403, detail="CSRF token mismatch")
     
     order_data=[]
     order_data.append(c_order.order_data)
@@ -387,18 +389,18 @@ async def verify_payment(data: VerifyPaymentRequest):
 
 @app.post("/create-order-cart/")
 async def create_order_cart(request: Request):
-    token_from_cookie = request.cookies.get("csrf_token")
-    token_from_header = request.headers.get("X-CSRF-Token") 
-    print('csrf_token_cookie:',token_from_cookie)
-    print('csrf_token_header:',token_from_header)
+    # token_from_cookie = request.cookies.get("csrf_token")
+    # token_from_header = request.headers.get("X-CSRF-Token") 
+    # print('csrf_token_cookie:',token_from_cookie)
+    # print('csrf_token_header:',token_from_header)
     
     
-    if not token_from_cookie:
-        raise HTTPException(status_code=403, detail="Missing CSRF token in cookies")
+    # if not token_from_cookie:
+    #     raise HTTPException(status_code=403, detail="Missing CSRF token in cookies")
 
-    # (Optional) If using a double-submit method, ensure it matches
-    if token_from_header and token_from_cookie != token_from_header:
-        raise HTTPException(status_code=403, detail="CSRF token mismatch")
+    # # (Optional) If using a double-submit method, ensure it matches
+    # if token_from_header and token_from_cookie != token_from_header:
+    #     raise HTTPException(status_code=403, detail="CSRF token mismatch")
       
 
     request_data = await request.json()
@@ -442,7 +444,7 @@ async def get_csrf_token(response: Response):
     response.set_cookie(
         key="csrf_token",
         value=csrf_token,
-        httponly=True,  # Prevent JavaScript access
+        httponly=False,  # Prevent JavaScript access
         secure=True,    # Require HTTPS
         samesite="Strict"  # Prevent cross-site requests
     )

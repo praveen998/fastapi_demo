@@ -50,7 +50,8 @@ $(document).ready(function () {
                 url: geturl()+"/create-order/",
                 type: "POST",
                 headers: {
-                },
+                    "X-CSRFToken": getCookie("csrftoken")
+                  },
                 contentType: "application/json",
                 data: JSON.stringify({
                     first_name: firstName,
@@ -71,9 +72,6 @@ $(document).ready(function () {
                     await $.ajax({
                         url: geturl() + "/send_purchase_data/",
                         type: "POST",
-                        headers: {
-                           
-                        },
                         contentType: "application/json",
                         data: JSON.stringify(customer),
                         success: function (response) {
@@ -454,3 +452,19 @@ function get_stored_value() {
     return storedValue;
 }
 
+
+function getCookie(name) {
+    let cookieValue = null;
+    if (document.cookie && document.cookie !== "") {
+        let cookies = document.cookie.split(";");
+        for (let i = 0; i < cookies.length; i++) {
+            let cookie = cookies[i].trim();
+            // Check if the cookie name matches
+            if (cookie.startsWith(name + "=")) {
+                cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                break;
+            }
+        }
+    }
+    return cookieValue;
+}

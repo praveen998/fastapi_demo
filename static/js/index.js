@@ -1,6 +1,6 @@
 
 function seturl() {
-    localStorage.setItem("fasturl", "https://fd9b-45-115-89-150.ngrok-free.app");
+    localStorage.setItem("fasturl", "ec2-3-110-174-115.ap-south-1.compute.amazonaws.com");
 }
 
 function geturl() {
