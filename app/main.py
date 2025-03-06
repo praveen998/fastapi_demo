@@ -277,6 +277,7 @@ async def add_product(user: dict = Depends(verify_admin_jwt_token),
     category: str = Form(...),
     product_img: UploadFile = File(...)
 ): 
+    print("product file name:",product_img)
     filename=await uploadimage_to_aws(s3_client,S3_BUCKET_NAME,product_img)
     print("aws file url:",filename)
     product={
