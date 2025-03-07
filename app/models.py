@@ -2,7 +2,7 @@ from aiomysql import create_pool,Error,DictCursor
 from fastapi import Depends
 import os 
 from dotenv import load_dotenv
-from sqlalchemy import Column, Integer, String, Boolean,ForeignKey,JSON,DateTime
+from sqlalchemy import Column, Integer, String, Boolean,ForeignKey,JSON,DateTime,Text,func
 from datetime import datetime
 from app.database import Base
 import json
@@ -31,7 +31,7 @@ class Product_details(Base):
       product_name= Column(String(100),unique=True,nullable=False,index=True)
       product_description= Column(String(500))
       product_price=Column(JSON,nullable=False)
-      product_img_url=Column(String(100))
+      product_img_url=Column(Text,nullable=False)
       category_id=Column(Integer,ForeignKey("product_categories.id"))
 
 
@@ -52,7 +52,7 @@ class Payment_details(Base):
       __tablename__ = "payment_details"
 
       id =Column(Integer,primary_key=True,index=True)
-      payment_id=Column(String(100),unique=True,nullable=False,index=True)
+      payment_id=Column(String(1000),unique=True,nullable=False,index=True)
       product_purchase_list=Column(JSON)
       customer_name=Column(String(100))
       phone=Column(String(15))
@@ -60,9 +60,9 @@ class Payment_details(Base):
       country=Column(String(100))
       state=Column(String(100))
       city=Column(String(100))
-      address=Column(String(200))
+      address=Column(String(1000))
       total_amount=Column(Integer)
-      payment_date = Column(DateTime, default=datetime.utcnow)  
+      payment_date = Column(DateTime, server_default=func.now())  
       
 
 
@@ -177,6 +177,7 @@ async def return_category_id(category:str):
 async def insert_product_details(product_detais):
       global pool
       result=await return_category_id(product_detais['category'])
+      print('category_id:',result)
       if result:
             try:
                   async with pool.acquire() as connection:
