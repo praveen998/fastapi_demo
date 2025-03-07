@@ -28,39 +28,39 @@ class Product_details(Base):
       __tablename__ = "product_details"
 
       id = Column(Integer,primary_key=True,index=True)
-      product_name= Column(String(100),unique=True,nullable=False,index=True)
-      product_description= Column(String(500))
+      product_name= Column(String(191),unique=True,nullable=False,index=True)
+      product_description= Column(Text)
       product_price=Column(JSON,nullable=False)
       product_img_url=Column(Text,nullable=False)
       category_id=Column(Integer,ForeignKey("product_categories.id"))
 
 
-class Client_payment(Base):
-      __tablename__ = "client_payment"
+# class Client_payment(Base):
+#       __tablename__ = "client_payment"
 
-      id=Column(Integer,primary_key=True,index=True)
-      payment_id=Column(String(100),unique=True,nullable=False,index=True)
-      customer_name=Column(String(100))
-      customer_phone=Column(String(15))
-      customer_email=Column(String(100))
-      customer_country=Column(String(100))
-      customer_state=Column(String(100))
-      customer_address=Column(String(200))
+#       id=Column(Integer,primary_key=True,index=True)
+#       payment_id=Column(String(100),unique=True,nullable=False,index=True)
+#       customer_name=Column(String(100))
+#       customer_phone=Column(String(15))
+#       customer_email=Column(String(100))
+#       customer_country=Column(String(100))
+#       customer_state=Column(String(100))
+#       customer_address=Column(String(200))
 
 
 class Payment_details(Base):
       __tablename__ = "payment_details"
 
       id =Column(Integer,primary_key=True,index=True)
-      payment_id=Column(String(1000),unique=True,nullable=False,index=True)
+      payment_id=Column(String(191),unique=True,nullable=False,index=True)
       product_purchase_list=Column(JSON)
-      customer_name=Column(String(100))
+      customer_name=Column(String(191))
       phone=Column(String(15))
       email=Column(String(100))
       country=Column(String(100))
       state=Column(String(100))
       city=Column(String(100))
-      address=Column(String(1000))
+      address=Column(Text)
       total_amount=Column(Integer)
       payment_date = Column(DateTime, server_default=func.now())  
       
