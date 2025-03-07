@@ -324,18 +324,18 @@ async def read_geolocation(request: Request):
     
 @app.post("/create-order/")
 async def create_order(c_order:Create_Order,request: Request):
-    # token_from_cookie = request.cookies.get("csrf_token")
-    # token_from_header = request.headers.get("X-CSRF-Token") 
-    # print('csrf_token_cookie:',token_from_cookie)
-    # print('csrf_token_header:',token_from_header)
+    token_from_cookie = request.cookies.get("csrf_token")
+    token_from_header = request.headers.get("X-CSRF-Token") 
+    print('csrf_token_cookie:',token_from_cookie)
+    print('csrf_token_header:',token_from_header)
     
     
-    # if not token_from_cookie:
-    #     raise HTTPException(status_code=403, detail="Missing CSRF token in cookies")
+    if not token_from_cookie:
+        raise HTTPException(status_code=403, detail="Missing CSRF token in cookies")
 
-    # # (Optional) If using a double-submit method, ensure it matches
-    # if token_from_header and token_from_cookie != token_from_header:
-    #     raise HTTPException(status_code=403, detail="CSRF token mismatch")
+    # (Optional) If using a double-submit method, ensure it matches
+    if token_from_header and token_from_cookie != token_from_header:
+        raise HTTPException(status_code=403, detail="CSRF token mismatch")
     
     order_data=[]
     order_data.append(c_order.order_data)
@@ -391,18 +391,18 @@ async def verify_payment(data: VerifyPaymentRequest):
 
 @app.post("/create-order-cart/")
 async def create_order_cart(request: Request):
-    # token_from_cookie = request.cookies.get("csrf_token")
-    # token_from_header = request.headers.get("X-CSRF-Token") 
-    # print('csrf_token_cookie:',token_from_cookie)
-    # print('csrf_token_header:',token_from_header)
+    token_from_cookie = request.cookies.get("csrf_token")
+    token_from_header = request.headers.get("X-CSRF-Token") 
+    print('csrf_token_cookie:',token_from_cookie)
+    print('csrf_token_header:',token_from_header)
     
     
-    # if not token_from_cookie:
-    #     raise HTTPException(status_code=403, detail="Missing CSRF token in cookies")
+    if not token_from_cookie:
+        raise HTTPException(status_code=403, detail="Missing CSRF token in cookies")
 
-    # # (Optional) If using a double-submit method, ensure it matches
-    # if token_from_header and token_from_cookie != token_from_header:
-    #     raise HTTPException(status_code=403, detail="CSRF token mismatch")
+    # (Optional) If using a double-submit method, ensure it matches
+    if token_from_header and token_from_cookie != token_from_header:
+        raise HTTPException(status_code=403, detail="CSRF token mismatch")
       
 
     request_data = await request.json()
@@ -411,6 +411,9 @@ async def create_order_cart(request: Request):
     total_amount=0
     for i in range(len(cart_data)):
         total_amount+=cart_data[i]['product_total']
+
+    if total_amount == 0:
+           raise HTTPException(status_code=403, detail="No product added")
     try:
         # Convert amount to paisa (Razorpay requires amount in paisa)
         order_payload = {
@@ -418,7 +421,10 @@ async def create_order_cart(request: Request):
             "currency": "INR",
             "payment_capture": 1,  # Auto-capture payment
         }
-
+        order_out = razorpay_client.order.create(order_payload)
+        order={'id':order_out['id'],'currency':order_out['currency'],'amount':order_out['amount'],"message": "Your Order is Ready Checkout Now..!",'first_name':order_data['first_name'],'last_name':order_data['last_name'],'email':order_data['email'],'phone':order_data['phone'],'country':order_data['country'],
+        'state':order_data['state'],'city':order_data['city'],'address':order_data['address'],'zipcode':order_data['zipcode'],'total_amount':total_amount,'cart_data':cart_data}
+        return order
     except razorpay.errors.BadRequestError as e:
         raise HTTPException(status_code=400, detail=f"Bad Request: {str(e)}")
     except razorpay.errors.UnauthorizedError as e:
@@ -432,10 +438,8 @@ async def create_order_cart(request: Request):
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Internal Server Error: {str(e)}")
      
-    order_out = razorpay_client.order.create(order_payload)
-    order={'id':order_out['id'],'currency':order_out['currency'],'amount':order_out['amount'],"message": "Your Order is Ready Checkout Now..!",'first_name':order_data['first_name'],'last_name':order_data['last_name'],'email':order_data['email'],'phone':order_data['phone'],'country':order_data['country'],
-    'state':order_data['state'],'city':order_data['city'],'address':order_data['address'],'zipcode':order_data['zipcode'],'total_amount':total_amount,'cart_data':cart_data}
-    return order
+   
+   
     #return {"status": "success", "message": "Payment verified successfully!"}
 
 
