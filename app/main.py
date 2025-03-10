@@ -43,7 +43,7 @@ app.mount("/static", StaticFiles(directory="static"), name="static")
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["https://ec2-3-110-174-115.ap-south-1.compute.amazonaws.com","https://free.nibhasserver.free.nf"],
+    allow_origins=["https://ec2-13-201-19-135.ap-south-1.compute.amazonaws.com","https://free.nibhasserver.free.nf"],
     #allow_origins=["*"],
     allow_credentials=True,
     allow_methods=["*"],
