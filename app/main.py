@@ -29,7 +29,6 @@ import secrets
 from fastapi import Response
 
 
-
 app=FastAPI()
 
 
@@ -37,7 +36,6 @@ app=FastAPI()
 templates = Jinja2Templates(directory="templates")
 # Mount the static files directory
 app.mount("/static", StaticFiles(directory="static"), name="static")
-
 
 
 
@@ -51,15 +49,18 @@ app.add_middleware(
 )
 
 
+
 init_ormdb()
 load_dotenv()
 # AWS S3 Configuration
+
 
 
 AWS_ACCESS_KEY_ID = os.getenv("AWS_ACCESS_KEY_ID")
 AWS_SECRET_ACCESS_KEY = os.getenv("AWS_SECRET_ACCESS_KEY")
 AWS_REGION = os.getenv("AWS_REGION")
 S3_BUCKET_NAME = os.getenv("S3_BUCKET_NAME")
+
 
 
 # Initalize S3 Client
@@ -324,18 +325,18 @@ async def read_geolocation(request: Request):
     
 @app.post("/create-order/")
 async def create_order(c_order:Create_Order,request: Request):
-    token_from_cookie = request.cookies.get("csrf_token")
-    token_from_header = request.headers.get("X-CSRF-Token") 
-    print('csrf_token_cookie:',token_from_cookie)
-    print('csrf_token_header:',token_from_header)
+    # token_from_cookie = request.cookies.get("csrf_token")
+    # token_from_header = request.headers.get("X-CSRF-Token") 
+    # print('csrf_token_cookie:',token_from_cookie)
+    # print('csrf_token_header:',token_from_header)
     
     
-    if not token_from_cookie:
-        raise HTTPException(status_code=403, detail="Missing CSRF token in cookies")
+    # if not token_from_cookie:
+    #     raise HTTPException(status_code=403, detail="Missing CSRF token in cookies")
 
-    # (Optional) If using a double-submit method, ensure it matches
-    if token_from_header and token_from_cookie != token_from_header:
-        raise HTTPException(status_code=403, detail="CSRF token mismatch")
+    # # (Optional) If using a double-submit method, ensure it matches
+    # if token_from_header and token_from_cookie != token_from_header:
+    #     raise HTTPException(status_code=403, detail="CSRF token mismatch")
     
     order_data=[]
     order_data.append(c_order.order_data)
@@ -391,18 +392,18 @@ async def verify_payment(data: VerifyPaymentRequest):
 
 @app.post("/create-order-cart/")
 async def create_order_cart(request: Request):
-    token_from_cookie = request.cookies.get("csrf_token")
-    token_from_header = request.headers.get("X-CSRF-Token") 
-    print('csrf_token_cookie:',token_from_cookie)
-    print('csrf_token_header:',token_from_header)
+    # token_from_cookie = request.cookies.get("csrf_token")
+    # token_from_header = request.headers.get("X-CSRF-Token") 
+    # print('csrf_token_cookie:',token_from_cookie)
+    # print('csrf_token_header:',token_from_header)
     
     
-    if not token_from_cookie:
-        raise HTTPException(status_code=403, detail="Missing CSRF token in cookies")
+    # if not token_from_cookie:
+    #     raise HTTPException(status_code=403, detail="Missing CSRF token in cookies")
 
-    # (Optional) If using a double-submit method, ensure it matches
-    if token_from_header and token_from_cookie != token_from_header:
-        raise HTTPException(status_code=403, detail="CSRF token mismatch")
+    # # (Optional) If using a double-submit method, ensure it matches
+    # if token_from_header and token_from_cookie != token_from_header:
+    #     raise HTTPException(status_code=403, detail="CSRF token mismatch")
       
 
     request_data = await request.json()
