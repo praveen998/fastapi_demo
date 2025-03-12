@@ -286,3 +286,21 @@ async def delete_product_by_name(product_name:str,s3client,S3_BUCKET_NAME):
             return {"success": False, "message": f"Unexpected error: can't delete product_img"}
 
 
+
+async def insert_payment_details(payment_id,product_purchase_list,customer_name,phone,email,country,state,city,address,total_amount):
+      global pool
+      try:
+            async with pool.acquire() as connection:
+                  async with connection.cursor() as cursor:
+                              await cursor.execute(
+                                   "insert into product_details(payment_id,product_purchase_list,customer_name,phone,email,country,state,city,address,total_amount) values(%s,%s,%s,%s,%s,%s,%s,%s,%s,%s)",
+                                    (payment_id,product_purchase_list,customer_name,phone,email,country,state,city,address,total_amount))
+                              await connection.commit()
+                              return {"success": True, "message": "payment details inserted successfully"}
+      except Error as e:
+                  return {"success": False, "message": f"Database error: {e}"}
+      except Exception as e:
+                  return {"success": False, "message": f"Unexpected error: {e}"}
+
+
+

@@ -11,7 +11,7 @@ import mimetypes
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi import Depends
 from app.models import init_db,close_db,insert_category,return_all_category,list_product_by_category,delete_category,insert_product_details,list_product_by_search_name
-from app.models import return_category_id,insert_product_details,pool,delete_product_by_name,return_product_img_url
+from app.models import return_category_id,insert_product_details,pool,delete_product_by_name,return_product_img_url,insert_payment_details
 from app.pydanticmodels import Product_category,Product_category,Employee,Product_details,Admin,Delete_product,Create_Order,VerifyPaymentRequest
 from app.utils import create_new_html,verify_password,verify_admin_jwt_token,create_jwt_token,convert_products_to_dict,send_email
 from fastapi.templating import Jinja2Templates
@@ -30,8 +30,6 @@ from fastapi import Response
 
 
 app=FastAPI()
-
-
 # Set up the templates directory
 templates = Jinja2Templates(directory="templates")
 # Mount the static files directory
@@ -41,13 +39,12 @@ app.mount("/static", StaticFiles(directory="static"), name="static")
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["https://ec2-13-201-19-135.ap-south-1.compute.amazonaws.com","https://free.nibhasserver.free.nf"],
+    allow_origins=["https://ec2-13-201-19-135.ap-south-1.compute.amazonaws.com","https://free.nibhasserver.free.nf","http://127.0.0.1"],
     #allow_origins=["*"],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
 )
-
 
 
 init_ormdb()
@@ -396,11 +393,8 @@ async def create_order_cart(request: Request):
     # token_from_header = request.headers.get("X-CSRF-Token") 
     # print('csrf_token_cookie:',token_from_cookie)
     # print('csrf_token_header:',token_from_header)
-    
-    
     # if not token_from_cookie:
     #     raise HTTPException(status_code=403, detail="Missing CSRF token in cookies")
-
     # # (Optional) If using a double-submit method, ensure it matches
     # if token_from_header and token_from_cookie != token_from_header:
     #     raise HTTPException(status_code=403, detail="CSRF token mismatch")
@@ -471,7 +465,18 @@ async def create_order_cart(request: Request,background_tasks: BackgroundTasks):
 
 
 
+@app.post("/add_payment_details/")
+async def add_payment_details(request: Request):
+    request_data = await request.json()
+    payment_id="payment123445"
+    product_purchase_list= 
+    '[
+        {"product_id": 1, "quantity": 2},
+        {"product_id": 3, "quantity": 1}
+    ]'
+    
+    msg=await insert_payment_details()
 
-
+    
 
 
