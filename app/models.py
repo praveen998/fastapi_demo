@@ -294,7 +294,7 @@ async def insert_payment_details(payment_id,product_purchase_list,customer_name,
                   async with connection.cursor() as cursor:
                               await cursor.execute(
                                    "insert into product_details(payment_id,product_purchase_list,customer_name,phone,email,country,state,city,address,total_amount) values(%s,%s,%s,%s,%s,%s,%s,%s,%s,%s)",
-                                    (payment_id,product_purchase_list,customer_name,phone,email,country,state,city,address,total_amount))
+                                    (payment_id,json.dumps(product_purchase_list),customer_name,phone,email,country,state,city,address,total_amount))
                               await connection.commit()
                               return {"success": True, "message": "payment details inserted successfully"}
       except Error as e:

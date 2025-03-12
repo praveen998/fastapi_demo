@@ -12,6 +12,11 @@ curl -X POST "http://127.0.0.1:8000/insert_category/" \
   "category": "floor cleaner"
 }'
 
+
+curl -X POST "http://127.0.0.1:8000/add_payment_details/" \
+-H "Content-Type: application/json" \
+
+
 curl -X POST "http://127.0.0.1:8000/adminauth/" \
 -H "Content-Type: application/json" \
 -d '{

@@ -465,17 +465,24 @@ async def create_order_cart(request: Request,background_tasks: BackgroundTasks):
 
 
 
-@app.post("/add_payment_details/")
-async def add_payment_details(request: Request):
-    request_data = await request.json()
-    payment_id="payment123445"
-    product_purchase_list= 
-    '[
+@app.get("/add_payment_details/")
+async def add_payment_details():
+   # request_data = await request.json()
+    pay_id="payment123445"
+    prod_list= [
         {"product_id": 1, "quantity": 2},
         {"product_id": 3, "quantity": 1}
-    ]'
-    
-    msg=await insert_payment_details()
+    ]
+    cust="praveen"
+    ph="9400416259"
+    em="praveen.gopi717@gmail.com"
+    coun="india"
+    sta="kerala"
+    cit="thrissur"
+    addr="praveenhome"
+    total=1000
+    msg=await insert_payment_details(payment_id=pay_id,product_purchase_list=prod_list,customer_name=cust,phone=ph,email=em,country=coun,state=sta,city=cit,address=addr,total_amount=total)
+    return msg
 
     
 
