@@ -53,15 +53,16 @@ class Payment_details(Base):
       id =Column(Integer,primary_key=True,index=True)
       payment_id=Column(String(191),unique=True,nullable=False,index=True)
       product_purchase_list=Column(JSON)
-      customer_name=Column(String(191))
+      first_name=Column(String(191))
+      last_name=Column(String(191))
       phone=Column(String(15))
       email=Column(String(100))
       country=Column(String(100))
       state=Column(String(100))
       city=Column(String(100))
+      zipcode=Column(String(100))
       address=Column(Text)
       total_amount=Column(Integer)
-      payment_confirm=Column(Boolean,default=False)
       payment_date = Column(DateTime, server_default=func.now())  
       
 
@@ -287,15 +288,15 @@ async def delete_product_by_name(product_name:str,s3client,S3_BUCKET_NAME):
 
 
 
-async def insert_payment_details(payment_id,product_purchase_list,customer_name,phone,email,country,state,city,address,total_amount,payment_confirm):
+async def insert_payment_details(payment_id,product_purchase_list,first_name,last_name,phone,email,country,state,city,zipcode,address,total_amount):
       global pool
-      print(payment_id,product_purchase_list,customer_name,phone,email,country,state,city,address,total_amount,payment_confirm)
+      print(payment_id,product_purchase_list,first_name,last_name,phone,email,country,state,city,zipcode,address,total_amount)
       try:
             async with pool.acquire() as connection:
                   async with connection.cursor() as cursor:
-                              await cursor.execute(
-                                   "insert into payment_details(payment_id,product_purchase_list,customer_name,phone,email,country,state,city,address,total_amount,payment_confirm) values(%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s)",
-                                    (payment_id,json.dumps(product_purchase_list),customer_name,phone,email,country,state,city,address,total_amount,payment_confirm))
+                              await cursor.execute(   
+                                   "insert into payment_details(payment_id,product_purchase_list,first_name,last_name,phone,email,country,state,city,zipcode,address,total_amount,payment_confirm) values(%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s)",
+                                    (payment_id,json.dumps(product_purchase_list),first_name,last_name,phone,email,country,state,city,zipcode,address,total_amount))
                               await connection.commit()
                               return {"success": True, "message": "payment details inserted successfully"}
       except Error as e:

@@ -54,9 +54,6 @@ $(document).ready(function () {
             let response = await $.ajax({
                 url: geturl() + "/create-order-cart/",
                 type: "POST",
-                headers: {
-                    "X-CSRFToken": getCookie("csrftoken")
-                  },
                 contentType: "application/json",
                 data: JSON.stringify(requestData),
                 success: async function (response) {

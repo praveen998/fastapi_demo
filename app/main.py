@@ -337,6 +337,7 @@ async def create_order(c_order:Create_Order,request: Request):
     
     order_data=[]
     order_data.append(c_order.order_data)
+    print('order data:',c_order.order_data)
     try:
 
         order_payload = {
@@ -468,21 +469,22 @@ async def create_order_cart(request: Request,background_tasks: BackgroundTasks):
 @app.post("/add_payment_details/")
 async def add_payment_details(request:Request):
     request_data = await request.json() 
-    # pay_id="payment123445"
-    # prod_list= [
-    #     {"product_id": 1, "quantity": 2},
-    #     {"product_id": 3, "quantity": 1}
-    # ]
-    # cust="praveen"
-    # ph="9400416259"
-    # em="praveen.gopi717@gmail.com"
-    # coun="india"
-    # sta="kerala"
-    # cit="thrissur"
-    # addr="praveenhome"
-    # total=1000
+    prod_list=[]
+    pay_id=request_data.get('payment_id')
+    prod_list=prod_list.append(request_data.get('product_purchase_list'))
+    custf=request_data.get('first_name')
+    custl=request_data.get('lastName')
+    ph=request_data.get('phone')
+    em=request_data.get('email')
+    coun=request_data.get('country')
+    sta=request_data.get('state')
+    cit=request_data.get('city')
+    zipp=request_data.get('zipcode')
+    addr=request_data.get('address')
+    total=request_data.get('total_amount')
+    print(pay_id,prod_list,custf,custl,ph,em,coun,sta,cit,zipp,addr,total)
     # payment_con=False
-    # msg=await insert_payment_details(payment_id=pay_id,product_purchase_list=prod_list,customer_name=cust,phone=ph,email=em,country=coun,state=sta,city=cit,address=addr,total_amount=total,payment_confirm=payment_con)
+    #msg=await insert_payment_details(payment_id=pay_id,product_purchase_list=prod_list,first_name=custf,last_name=custl,phone=ph,email=em,country=coun,state=sta,city=cit,zipcode=zipp,address=addr,total_amount=total)
     msg={"success": True, "message": "payment details inserted successfully"}
     return msg
 
