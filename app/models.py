@@ -18,14 +18,13 @@ class User(Base):
 
 
 class Product_categories(Base):
-      __tablename__ = "product_categories"
       
+      __tablename__ = "product_categories"
       id=Column(Integer,primary_key=True,index=True)
       categories=Column(String(100),unique=True,nullable=False,index=True)
 
 
 class Product_details(Base):
-
       __tablename__ = "product_details"
       id = Column(Integer,primary_key=True,index=True)
       product_name= Column(String(191),unique=True,nullable=False,index=True)
@@ -60,7 +59,7 @@ class Payment_details(Base):
       country=Column(String(100))
       state=Column(String(100))
       city=Column(String(100))
-      zipcode=Column(String(100))
+      zipcode=Column(String(100))   
       address=Column(Text)
       total_amount=Column(Integer)
       payment_date = Column(DateTime, server_default=func.now())  
@@ -290,10 +289,6 @@ async def delete_product_by_name(product_name:str,s3client,S3_BUCKET_NAME):
 
 async def insert_payment_details(payment_id,product_purchase_list,first_name,last_name,phone,email,country,state,city,zipcode,address,total_amount):
       global pool
-
-      # Debug print - consider using logging in production
-      print(payment_id, product_purchase_list, first_name, last_name, phone, email, country, state, city, zipcode, address, total_amount)
-
       try:
         async with pool.acquire() as connection:
             async with connection.cursor() as cursor:
@@ -340,3 +335,18 @@ async def insert_payment_details(payment_id,product_purchase_list,first_name,las
 
 
 
+async def get_orders_by_date(dat):
+      global pool
+      try:
+            async with pool.acquire() as connection:
+                  async with connection.cursor(DictCursor) as cursor:
+                        await cursor.execute("select * from payment_details where DATE(payment_date) = %s",(dat))
+                        data=await cursor.fetchall()
+                        return data
+      except Error as e:
+            return {"success": False, "message": f"Database error: {e}"}
+      except Exception as e:
+            return {"success": False, "message": f"Unexpected error: {e}"}
+      else:
+            return {"success": False, "message": "no product found"}
+            

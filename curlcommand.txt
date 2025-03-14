@@ -24,7 +24,7 @@ curl -X POST "http://127.0.0.1:8000/adminauth/" \
   "password":"1234"
 }'
 
-
+curl -X GET "http://127.0.0.1:8000/get_orders"
 
 curl -X GET "http://127.0.0.1:8000/list_category"
 

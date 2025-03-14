@@ -116,8 +116,8 @@ $(document).ready(function () {
                 <option selected>Select Categories</option>
             </select>
             <br><br>
-             <div>
-                 <table id="productTable">
+            <div>
+                <table id="productTable">
                     <thead>
                         <tr>
                             <th>Product Name</th>
@@ -125,7 +125,6 @@ $(document).ready(function () {
                             <th>Prices (JSON)</th>
                             <th>Image</th>
                             <th>Actions</th>
-                           
                         </tr>
                     </thead>
                     <tbody>
@@ -137,6 +136,41 @@ $(document).ready(function () {
             `
             content.html(edit_product);
             load_addproject_Categories();
+        }
+        else if (page === "show_orders")
+        {
+
+        showorder=
+        `
+            <div class="table-container">
+            <table id="productTable">
+                <thead>
+                    <tr>
+                        <th>id</th>
+                        <th>payment_id</th>
+                        <th>product_purchase_list</th>
+                        <th>first_name</th>
+                        <th>last_name</th>
+                        <th>phone</th>
+                        <th>email</th>
+                        <th>country</th>
+                        <th>state</th>
+                        <th>city</th>
+                        <th>zipcode</th>
+                        <th>address</th>
+                        <th>total_amount</th>
+                        <th>payment_date</th>
+                    </tr>
+                </thead>
+                <tbody>
+                </tbody>
+            </table>
+        </div>
+        `
+
+        content.html(showorder);
+        load_addproject_Categories();
+
         }
         else if (page === "settings") {
             content.html("<h3>⚙️ Settings</h3><p>Manage your settings here.</p>");

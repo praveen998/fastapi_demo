@@ -11,7 +11,7 @@ import mimetypes
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi import Depends
 from app.models import init_db,close_db,insert_category,return_all_category,list_product_by_category,delete_category,insert_product_details,list_product_by_search_name
-from app.models import return_category_id,insert_product_details,pool,delete_product_by_name,return_product_img_url,insert_payment_details
+from app.models import return_category_id,insert_product_details,pool,delete_product_by_name,return_product_img_url,insert_payment_details,get_orders_by_date
 from app.pydanticmodels import Product_category,Product_category,Employee,Product_details,Admin,Delete_product,Create_Order,VerifyPaymentRequest
 from app.utils import create_new_html,verify_password,verify_admin_jwt_token,create_jwt_token,convert_products_to_dict,send_email
 from fastapi.templating import Jinja2Templates
@@ -488,4 +488,11 @@ async def add_payment_details(request:Request):
 
     
 
+
+@app.get("/get_orders")
+async def get_orders():
+    dat='2025-03-14'
+    msg=await get_orders_by_date(dat)
+    print(msg[0])
+    return {"success": True, "message": "payment details inserted successfully"}
 
