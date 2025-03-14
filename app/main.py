@@ -326,11 +326,8 @@ async def create_order(c_order:Create_Order,request: Request):
     # token_from_header = request.headers.get("X-CSRF-Token") 
     # print('csrf_token_cookie:',token_from_cookie)
     # print('csrf_token_header:',token_from_header)
-    
-    
     # if not token_from_cookie:
     #     raise HTTPException(status_code=403, detail="Missing CSRF token in cookies")
-
     # # (Optional) If using a double-submit method, ensure it matches
     # if token_from_header and token_from_cookie != token_from_header:
     #     raise HTTPException(status_code=403, detail="CSRF token mismatch")
@@ -339,7 +336,6 @@ async def create_order(c_order:Create_Order,request: Request):
     order_data.append(c_order.order_data)
     print('order data:',c_order.order_data)
     try:
-
         order_payload = {
             "amount": int(c_order.total_amount * 100),  # Convert INR to paisa
             "currency": "INR",
@@ -469,11 +465,11 @@ async def create_order_cart(request: Request,background_tasks: BackgroundTasks):
 @app.post("/add_payment_details/")
 async def add_payment_details(request:Request):
     request_data = await request.json() 
-    prod_list=[]
+    # prod_list=[]
     pay_id=request_data.get('payment_id')
-    prod_list=prod_list.append(request_data.get('product_purchase_list'))
+    prod_list=request_data.get('product_purchase_list')
     custf=request_data.get('first_name')
-    custl=request_data.get('lastName')
+    custl=request_data.get('last_name')
     ph=request_data.get('phone')
     em=request_data.get('email')
     coun=request_data.get('country')
@@ -482,10 +478,12 @@ async def add_payment_details(request:Request):
     zipp=request_data.get('zipcode')
     addr=request_data.get('address')
     total=request_data.get('total_amount')
-    print(pay_id,prod_list,custf,custl,ph,em,coun,sta,cit,zipp,addr,total)
+    if pay_id and prod_list and custf and custl and ph and em and coun and sta and cit and zipp and addr and total == None:
+       raise HTTPException(status_code=400, detail="Something went wrong!")
+    #print(pay_id,prod_list,custf,custl,ph,em,coun,sta,cit,zipp,addr,total)
     # payment_con=False
-    #msg=await insert_payment_details(payment_id=pay_id,product_purchase_list=prod_list,first_name=custf,last_name=custl,phone=ph,email=em,country=coun,state=sta,city=cit,zipcode=zipp,address=addr,total_amount=total)
-    msg={"success": True, "message": "payment details inserted successfully"}
+    msg=await insert_payment_details(payment_id=pay_id,product_purchase_list=prod_list,first_name=custf,last_name=custl,phone=ph,email=em,country=coun,state=sta,city=cit,zipcode=zipp,address=addr,total_amount=total)
+    #msg={"success": True, "message": "payment details inserted successfully"}
     return msg
 
     

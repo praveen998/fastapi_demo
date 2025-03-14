@@ -14,7 +14,6 @@ from email.mime.multipart import MIMEMultipart
 load_dotenv()
 
 
-
 def hash_password(password: str) -> str:
     """Hash a password using bcrypt."""
     salt = bcrypt.gensalt()  # Generate salt
@@ -87,7 +86,7 @@ async def create_new_html(msg,country_name):
             else:
                  prod.append(value)
             c+=1
-       
+
         htmlcode+=f""" 
     <div class="col">
     <div class="card h-100 shadow-sm" style="background: linear-gradient(135deg, #ff4d4d, #990000); color: white; border: none;">

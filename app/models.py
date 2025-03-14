@@ -290,19 +290,53 @@ async def delete_product_by_name(product_name:str,s3client,S3_BUCKET_NAME):
 
 async def insert_payment_details(payment_id,product_purchase_list,first_name,last_name,phone,email,country,state,city,zipcode,address,total_amount):
       global pool
-      print(payment_id,product_purchase_list,first_name,last_name,phone,email,country,state,city,zipcode,address,total_amount)
+
+      # Debug print - consider using logging in production
+      print(payment_id, product_purchase_list, first_name, last_name, phone, email, country, state, city, zipcode, address, total_amount)
+
       try:
-            async with pool.acquire() as connection:
-                  async with connection.cursor() as cursor:
-                              await cursor.execute(   
-                                   "insert into payment_details(payment_id,product_purchase_list,first_name,last_name,phone,email,country,state,city,zipcode,address,total_amount,payment_confirm) values(%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s)",
-                                    (payment_id,json.dumps(product_purchase_list),first_name,last_name,phone,email,country,state,city,zipcode,address,total_amount))
-                              await connection.commit()
-                              return {"success": True, "message": "payment details inserted successfully"}
-      except Error as e:
-                  return {"success": False, "message": f"Database error: {e}"}
+        async with pool.acquire() as connection:
+            async with connection.cursor() as cursor:
+                query = """
+                    INSERT INTO payment_details
+                    (payment_id, product_purchase_list, first_name, last_name, phone, email, country, state, city, zipcode, address, total_amount)
+                    VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
+                """
+
+                # Add the value for `payment_confirm`, assuming True for now.
+                values = (payment_id,json.dumps(product_purchase_list),first_name,last_name,phone,email,country,state,city,zipcode,address,total_amount)
+                await cursor.execute(query, values)
+                await connection.commit()
+
+                return {"success": True, "message": "Payment details inserted successfully"}
+
+      except IntegrityError as e:
+        # Violated primary key / unique constraint etc.
+        raise HTTPException(
+            status_code=400,
+            detail=f"Integrity error: {str(e)}"
+        )
+
+      except OperationalError as e:
+        # Connection error / server not available etc.
+        raise HTTPException(
+            status_code=503,
+            detail=f"Operational error: {str(e)}"
+        )
+
+      except ProgrammingError as e:
+        # SQL syntax error etc.
+        raise HTTPException(
+            status_code=400,
+            detail=f"Programming error: {str(e)}"
+        )
+
       except Exception as e:
-                  return {"success": False, "message": f"Unexpected error: {e}"}
+        # Unexpected generic error
+        raise HTTPException(
+            status_code=500,
+            detail=f"Unexpected error: {str(e)}"
+        )
 
 
 

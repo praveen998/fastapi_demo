@@ -129,7 +129,7 @@ $(document).ready(function () {
                             </div>
                         </div>
                         `);
-
+                        
                     $(".paymentdiv").css("visibility", "visible");
                     localStorage.setItem('order', JSON.stringify(response));
                     $(".pay-button").click(function (e) {
@@ -161,15 +161,12 @@ $(document).ready(function () {
                                 let result = await verifyResponse.json();
 
                                 if (verifyResponse.ok) {
-                                    const keys = 'buynow_product';
-                                    const storedValues = localStorage.getItem(keys);
-                                    let parsedValue = JSON.parse(storedValues);
-
+                                    let parsedValue = JSON.parse(localStorage.getItem('buynow_product'));
                                     var requestData = {
                                         payment_id:customer.id,
                                         product_purchase_list:parsedValue,
                                         first_name:customer.first_name,
-                                        last_name:customer.lastName,
+                                        last_name:customer.last_name,
                                         phone:customer.phone,
                                         email:customer.email,
                                         country:customer.country,

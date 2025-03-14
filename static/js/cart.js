@@ -156,56 +156,86 @@ $(document).ready(function () {
                                     let result = await verifyResponse.json();
                                     if (verifyResponse.ok) {
 
-                                        alert("✅ Payment Verified: " + result.message);
+                                        let parsedValue = JSON.parse(localStorage.getItem('mycart'));
+                                        var requestData = {
+                                            payment_id:customer.id,
+                                            product_purchase_list:parsedValue,
+                                            first_name:customer.first_name,
+                                            last_name:customer.last_name,
+                                            phone:customer.phone,
+                                            email:customer.email,
+                                            country:customer.country,
+                                            state:customer.state,
+                                            city:customer.city,
+                                            zipcode:customer.zipcode,
+                                            address:customer.address,
+                                            total_amount:customer.total_amount
+                                        };
+                                        await $.ajax({
+                                            url: geturl()+"/add_payment_details/", // Your API endpoint
+                                            type: "POST",
+                                            contentType: "application/json",
+                                            data: JSON.stringify(requestData), // Data sent to the backend
+                                            success: function(response) {
+                                                alert("✅ Payment Verified: " + result.message);
 
-                                        $(".mainwindow").html(`
-                                        <span style="color: green;">Your Order Created...! Thanks for Purchasing</span>
-                                        <div class="card-footer mt-4">
-                                           <ul class="list-group list-group-flush">
-                                              <li class="list-group-item d-flex justify-content-between align-items-center border-0 px-0 pb-0 text-muted">
-                                                  Order id
-                                                   <div>${customer.id}</div>
-                                               </li>
-                                               <li class="list-group-item d-flex justify-content-between align-items-center border-0 px-0 pb-0 text-muted">
-                                                  Name
-                                                   <div>${customer.first_name} ${customer.last_name}</div>
-                                               </li>
-                                                 <li class="list-group-item d-flex justify-content-between align-items-center border-0 px-0 pb-0 text-muted">
-                                                  Email
-                                                   <div>${customer.email}</div>
-                                               </li>
-                                                 <li class="list-group-item d-flex justify-content-between align-items-center border-0 px-0 pb-0 text-muted">
-                                                  Phone
-                                                   <div>${customer.phone}</div>
-                                               </li>
-                                                  <li class="list-group-item d-flex justify-content-between align-items-center border-0 px-0 pb-0 text-muted">
-                                                  State
-                                                   <div>${customer.state}</div>
-                                               </li>
-                                                <li class="list-group-item d-flex justify-content-between align-items-center border-0 px-0 pb-0 text-muted">
-                                                  city
-                                                    <div>${customer.city}</div>
-                                                </li>
-                                               
-                                                   <li class="list-group-item d-flex justify-content-between align-items-center border-0 px-0 pb-0 text-muted">
-                                                  Address
-                                                   <div>${customer.address}</div>
-                                               </li>
-                                                   <li class="list-group-item d-flex justify-content-between align-items-center border-0 px-0 pb-0 text-muted">
-                                                  Country
-                                                   <div>${customer.country}</div>
-                                               </li>
-                                                   <li class="list-group-item d-flex justify-content-between align-items-center border-0 px-0 pb-0 text-muted">
-                                                  Zipcode
-                                                   <div>${customer.zipcode}</div>
-                                               </li>
-                                               <li class="list-group-item d-flex justify-content-between align-items-center px-0 fw-bold text-uppercase">
-                                                   Total to pay
-                                                   <div id="total">${customer.total_amount}</div>
-                                               </li>   
-                                           </ul>
-                                       </div>
-                                       `);
+                                                $(".mainwindow").html(`
+                                                <span style="color: green;">Your Order Created...! Thanks for Purchasing</span>
+                                                <div class="card-footer mt-4">
+                                                   <ul class="list-group list-group-flush">
+                                                      <li class="list-group-item d-flex justify-content-between align-items-center border-0 px-0 pb-0 text-muted">
+                                                          Order id
+                                                           <div>${customer.id}</div>
+                                                       </li>
+                                                       <li class="list-group-item d-flex justify-content-between align-items-center border-0 px-0 pb-0 text-muted">
+                                                          Name
+                                                           <div>${customer.first_name} ${customer.last_name}</div>
+                                                       </li>
+                                                         <li class="list-group-item d-flex justify-content-between align-items-center border-0 px-0 pb-0 text-muted">
+                                                          Email
+                                                           <div>${customer.email}</div>
+                                                       </li>
+                                                         <li class="list-group-item d-flex justify-content-between align-items-center border-0 px-0 pb-0 text-muted">
+                                                          Phone
+                                                           <div>${customer.phone}</div>
+                                                       </li>
+                                                          <li class="list-group-item d-flex justify-content-between align-items-center border-0 px-0 pb-0 text-muted">
+                                                          State
+                                                           <div>${customer.state}</div>
+                                                       </li>
+                                                        <li class="list-group-item d-flex justify-content-between align-items-center border-0 px-0 pb-0 text-muted">
+                                                          city
+                                                            <div>${customer.city}</div>
+                                                        </li>
+                                                       
+                                                           <li class="list-group-item d-flex justify-content-between align-items-center border-0 px-0 pb-0 text-muted">
+                                                          Address
+                                                           <div>${customer.address}</div>
+                                                       </li>
+                                                           <li class="list-group-item d-flex justify-content-between align-items-center border-0 px-0 pb-0 text-muted">
+                                                          Country
+                                                           <div>${customer.country}</div>
+                                                       </li>
+                                                           <li class="list-group-item d-flex justify-content-between align-items-center border-0 px-0 pb-0 text-muted">
+                                                          Zipcode
+                                                           <div>${customer.zipcode}</div>
+                                                       </li>
+                                                       <li class="list-group-item d-flex justify-content-between align-items-center px-0 fw-bold text-uppercase">
+                                                           Total to pay
+                                                           <div id="total">${customer.total_amount}</div>
+                                                       </li>   
+                                                   </ul>
+                                               </div>
+                                               `);
+                                            },
+                                            error: function(xhr, status, error) {
+                                                console.error("Error:", error);
+                                                alert("Error occurred while submitting payment.");
+                                            }
+                                        });
+
+
+                                    
                                     } else {
                                         alert("❌ Payment Verification Failed: " + result.detail);
                                     }
