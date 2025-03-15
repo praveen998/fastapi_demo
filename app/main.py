@@ -489,10 +489,33 @@ async def add_payment_details(request:Request):
     
 
 
-@app.get("/get_orders")
-async def get_orders():
-    dat='2025-03-14'
+@app.post("/get_orders")
+async def get_orders(request: Request):
+    request_data = await request.json()
+    dat=request_data.get('start_date')
+    print('date:',dat)
     msg=await get_orders_by_date(dat)
-    print(msg[0])
-    return {"success": True, "message": "payment details inserted successfully"}
+    print(msg)
+    for order in msg:
+        try:
+            # Convert string to list/dict
+            product_list = json.loads(order['product_purchase_list'])
+            # Ensure it's always a list
+            if isinstance(product_list, dict): 
+                product_list = [product_list]
+
+            # Remove 'product_src' from each product
+            for product in product_list:
+                product.pop('product_src', None)
+                product.pop('product_description',None)
+
+            # Convert back to JSON string
+            order['product_purchase_list'] = json.dumps(product_list)
+
+        except json.JSONDecodeError:
+            print(f"Error decoding JSON for order {order['id']}")
+
+    #return {"success": True, "message": "payment details inserted successfully"}
+    return msg
+
 
