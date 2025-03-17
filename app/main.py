@@ -69,7 +69,7 @@ s3_client = boto3.client(
 )
 
 
-razorpay_client = razorpay.Client(auth=(os.getenv("razorpay_id"),os.getenv("razorpay_key")))
+razorpay_client = razorpay.Client(auth=(os.getenv("razorpay_id_real"),os.getenv("razorpay_key_real")))
 
 @app.on_event("startup")
 async def startup_event():
