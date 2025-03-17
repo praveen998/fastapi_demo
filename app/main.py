@@ -367,7 +367,7 @@ async def create_order(c_order:Create_Order,request: Request):
 async def verify_payment(data: VerifyPaymentRequest):
     try:
         # Concatenate order_id and payment_id as per Razorpay docs
-        generated_signature = hmac.new("3wpzNPoPk10dpsPAqiFHqlN2".encode(),
+        generated_signature = hmac.new(os.getenv("razorpay_key_real").encode(),
             f"{data.razorpay_order_id}|{data.razorpay_payment_id}".encode(),
             hashlib.sha256
         ).hexdigest()
