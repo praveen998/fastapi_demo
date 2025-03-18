@@ -69,7 +69,7 @@ s3_client = boto3.client(
 )
 
 
-razorpay_client = razorpay.Client(auth=(os.getenv("razorpay_id_real"),os.getenv("razorpay_key_real")))
+razorpay_client = razorpay.Client(auth=(os.getenv("razorpay_id"),os.getenv("razorpay_key")))
 
 @app.on_event("startup")
 async def startup_event():
@@ -87,7 +87,7 @@ country_name=""
 
 @app.get("/", response_class=HTMLResponse)
 async def home(request: Request, background_tasks: BackgroundTasks):
-   # background_tasks.add_task(send_email,"Test Subject", "This is a test email body.", "praveengopi998@gmail.com")
+    #background_tasks.add_task(send_email,"We’ve Received Your Order!", "This is a test email body.", "praveengopi998@gmail.com")
     return templates.TemplateResponse("index.html", {"request": request})
 
 @app.get("/buynow",response_class=HTMLResponse)
@@ -97,7 +97,6 @@ async def dashboard(request: Request):
 @app.get("/cart",response_class=HTMLResponse)
 async def dashboard(request: Request):
     return templates.TemplateResponse("cart.html", {"request": request})
-
 
 @app.get("/admin",response_class=HTMLResponse)
 async def adminpage(request: Request):
@@ -367,7 +366,7 @@ async def create_order(c_order:Create_Order,request: Request):
 async def verify_payment(data: VerifyPaymentRequest):
     try:
         # Concatenate order_id and payment_id as per Razorpay docs
-        generated_signature = hmac.new(os.getenv("razorpay_key_real").encode(),
+        generated_signature = hmac.new(os.getenv("razorpay_key").encode(),
             f"{data.razorpay_order_id}|{data.razorpay_payment_id}".encode(),
             hashlib.sha256
         ).hexdigest()
@@ -395,8 +394,6 @@ async def create_order_cart(request: Request):
     # # (Optional) If using a double-submit method, ensure it matches
     # if token_from_header and token_from_cookie != token_from_header:
     #     raise HTTPException(status_code=403, detail="CSRF token mismatch")
-      
-
     request_data = await request.json()
     order_data = request_data.get("order", {})
     cart_data = request_data.get("cart", [])
@@ -461,9 +458,10 @@ async def create_order_cart(request: Request,background_tasks: BackgroundTasks):
 
 
 
+from datetime import date
 
 @app.post("/add_payment_details/")
-async def add_payment_details(request:Request):
+async def add_payment_details(request:Request,background_tasks: BackgroundTasks):
     request_data = await request.json() 
     # prod_list=[]
     pay_id=request_data.get('payment_id')
@@ -482,7 +480,26 @@ async def add_payment_details(request:Request):
        raise HTTPException(status_code=400, detail="Something went wrong!")
     #print(pay_id,prod_list,custf,custl,ph,em,coun,sta,cit,zipp,addr,total)
     # payment_con=False
+    body=f"""
+    Dear {custf} {custl},
+
+    Thank you for shopping with HHHPERFUMES !
+
+    We’re happy to confirm your order {pay_id} placed on {date.today()}. Our team is preparing your items.
+
+    Order Summary:{json.dumps(prod_list)}
+
+    If you have questions, we’re here to help!  
+    Support Email:hhhperfumesshop@gmail.com Phone: +919446172529
+
+    Thank you for shopping with HHHPERFUMES !
+
+    Warm regards,
+    HHHPERFUMES Team    
+
+    """
     msg=await insert_payment_details(payment_id=pay_id,product_purchase_list=prod_list,first_name=custf,last_name=custl,phone=ph,email=em,country=coun,state=sta,city=cit,zipcode=zipp,address=addr,total_amount=total)
+    background_tasks.add_task(send_email,"We’ve Received Your Order!", body,em)
     #msg={"success": True, "message": "payment details inserted successfully"}
     return msg
 

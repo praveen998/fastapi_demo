@@ -1,6 +1,5 @@
 import bcrypt
 from datetime import datetime, timezone
-from dotenv import load_dotenv
 import os
 from jose import jwt, JWTError
 from datetime import datetime, timedelta, timezone
@@ -10,6 +9,7 @@ import json
 import smtplib
 from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
+from dotenv import load_dotenv
 
 load_dotenv()
 
@@ -36,6 +36,7 @@ SECRET_KEY = os.getenv("SECRET_KEY")
 ALGORITHM = "HS256"
 ACCESS_TOKEN_EXPIRE_MINUTES = 60  # Token expires in 1 hour
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="adminauth")
+
 
 def verify_admin_jwt_token(token: str = Depends(oauth2_scheme)):
     try:
@@ -143,8 +144,8 @@ async def create_new_html(msg,country_name):
 
 
 async def send_email(subject,body,to_email):
-    from_email ="praveen.gopi717@gmail.com"
-    from_password="nbrw kyzi zpto sezm"
+    from_email ="hhhperfumesshop@gmail.com"
+    from_password=os.getenv("smtppassword")
 
     msg = MIMEMultipart()
     msg['From'] = from_email
