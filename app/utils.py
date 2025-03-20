@@ -88,12 +88,7 @@ async def create_new_html(msg,country_name):
                  prod.append(value)
             c+=1
         htmlcode+=f"""
-    <div class="container mt-4">
-        <h1 class="text-center" style="font-size: 30px; padding: 20px;">OUR PRODUCTS</h1>
-        <div class="row">
-            <div class="container-fluid bg-transparent my-4 p-3">
-                <div id="grid-container" class="row row-cols-1 row-cols-sm-2 row-cols-lg-4 g-3">
-                    <div class="col">
+     <div class="col">
                         <div class="card h-100 shadow-sm" style="background: #f8f9fa; border-radius: 15px; border-color:red; overflow: hidden;">
                             <!-- Image takes half of the card -->
                             <div style="height: 50%; overflow: hidden;">
@@ -148,10 +143,6 @@ async def create_new_html(msg,country_name):
                         </div>
                     </div>
     
-                </div>
-            </div>
-        </div>
-    </div>
         """
 
 
