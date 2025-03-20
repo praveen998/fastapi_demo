@@ -87,58 +87,125 @@ async def create_new_html(msg,country_name):
             else:
                  prod.append(value)
             c+=1
-
-        htmlcode+=f""" 
-    <div class="col">
-    <div class="card h-100 shadow-sm" style="background: linear-gradient(135deg, #ff4d4d, #990000); color: white; border: none;">
-       <img id="product_image"
-     src="{prod[3]}" 
-     class="card-img-top"
-     alt="..."
-     data-bs-toggle="modal" 
-     data-bs-target="#imageModal"
-     style="border-radius: 10px; object-fit: cover;">
-        <div class="card-body">
-            <div class="clearfix mb-3"> 
-               <span class="float-start badge rounded-pill bg-light text-dark" id="product_name" 
-                     style="font-size: 1rem; padding: 7px 10px;">{prod[0]}</span> 
-
-                <span class="float-end price-hp fw-bold text-warning" id="product_price">{prod[2][cname]}₹</span> 
-            </div>
-            <h5 class="card-title" id="product_description" style="font-weight: 400; color: white;">{prod[1]}</h5>
-
-            <div class="text-center my-4"> 
-                <a href="#" class="btn" id="buynow" 
-                   style="background: #ffcc00; color: #990000; font-weight: bold; border-radius: 8px;">
-                   Buy Now
-                </a> 
-            </div>
-            <div class="text-center my-4"> 
-                <a href="#" class="float-end text-white fw-bold" style="text-decoration: none; color: white;" id="addcart">
-                   Add To Cart
-                </a> 
+        htmlcode+=f"""
+    <div class="container mt-4">
+        <h1 class="text-center" style="font-size: 30px; padding: 20px;">OUR PRODUCTS</h1>
+        <div class="row">
+            <div class="container-fluid bg-transparent my-4 p-3">
+                <div id="grid-container" class="row row-cols-1 row-cols-sm-2 row-cols-lg-4 g-3">
+                    <div class="col">
+                        <div class="card h-100 shadow-sm" style="background: #f8f9fa; border-radius: 15px; border-color:red; overflow: hidden;">
+                            <!-- Image takes half of the card -->
+                            <div style="height: 50%; overflow: hidden;">
+                                <img id="product_image"
+                                     src="{prod[3]}"
+                                     class="card-img-top"
+                                     alt="Product Image"
+                                     data-bs-toggle="modal"
+                                     data-bs-target="#imageModal"
+                                     style="width: 100%; height: 100%; object-fit: cover;">
+                            </div>
+                            <div class="card-body d-flex flex-column justify-content-between">
+                                <div>
+                                    <h5 class="card-title text-center" id="product_name">{prod[0]}</h5>
+                                    <p class="card-text text-center" id="product_description">{prod[1]}</p>
+                                    <div class="text-center mb-3">
+                                        <span class="badge rounded-pill bg-light text-dark"
+                                              style="font-size: 1rem; padding: 7px 10px;"  id="product_price">{prod[2][cname]}₹</span>
+                                    </div>
+                                </div>
+                                <!-- Buttons with hover effect -->
+                                <div class="d-flex justify-content-between">
+                                    <a href="#" class="btn btn-danger w-50 me-2 buy-now" id="buynow" 
+                                       style="border-radius: 8px; transition: 0.3s;">
+                                       Buy Now
+                                    </a>
+                                    <a href="#" class="btn btn-outline-danger w-50 add-cart" id="addcart"
+                                       style="border-radius: 8px; transition: 0.3s;">
+                                       Add To Cart
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+    
+                    <!-- Bootstrap Modal -->
+                    <div class="modal fade" id="imageModal" tabindex="-1" aria-labelledby="imageModalLabel"
+                         aria-hidden="true">
+                        <div class="modal-dialog modal-dialog-centered">
+                            <div class="modal-content" style="background: #f8f9fa;">
+                                <div class="modal-header">
+                                    <h5 class="modal-title" id="imageModalLabel">{prod[0]}</h5>
+                                    <button type="button" class="btn-close" data-bs-dismiss="modal"
+                                            aria-label="Close"></button>
+                                </div>
+                                <div class="modal-body text-center">
+                                    <img id="modalImage"
+                                         src="{prod[3]}"
+                                         class="img-fluid" alt="Product Image" style="border-radius: 10px;">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+    
+                </div>
             </div>
         </div>
     </div>
-</div>
-
-<!-- Bootstrap Modal -->
-<div class="modal fade" id="imageModal" tabindex="-1" aria-labelledby="imageModalLabel" aria-hidden="true">
-    <div class="modal-dialog modal-dialog-centered">
-        <div class="modal-content" style="background: #990000; color: white;">
-            <div class="modal-header">
-                <h5 class="modal-title" id="imageModalLabel">{prod[0]}</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-            </div>
-            <div class="modal-body text-center">
-                <img id="modalImage" src="{prod[3]}" class="img-fluid" alt="Product Image" style="border-radius: 10px;">
-            </div>
-        </div>
-    </div>
-</div>
+        """
 
 
-           """
+#     htmlcode+=f""" 
+#     <div class="col">
+#     <div class="card h-100 shadow-sm" style="background: linear-gradient(135deg, #ff4d4d, #990000); color: white; border: none;">
+#        <img id="product_image"
+#      src="{prod[3]}" 
+#      class="card-img-top"
+#      alt="..."
+#      data-bs-toggle="modal" 
+#      data-bs-target="#imageModal"
+#      style="border-radius: 10px; object-fit: cover;">
+#         <div class="card-body">
+#             <div class="clearfix mb-3"> 
+#                <span class="float-start badge rounded-pill bg-light text-dark" id="product_name" 
+#                      style="font-size: 1rem; padding: 7px 10px;">{prod[0]}</span> 
+
+#                 <span class="float-end price-hp fw-bold text-warning" id="product_price">{prod[2][cname]}₹</span> 
+#             </div>
+#             <h5 class="card-title" id="product_description" style="font-weight: 400; color: white;">{prod[1]}</h5>
+
+#             <div class="text-center my-4"> 
+#                 <a href="#" class="btn buy-now" id="buynow" 
+#                    style="background: #ffcc00; color: #990000; font-weight: bold; border-radius: 8px;">
+#                    Buy Now
+#                 </a> 
+#             </div>
+#             <div class="text-center my-4"> 
+#                 <a href="#" class="float-end text-white fw-bold add-cart" style="text-decoration: none; color: white;" id="addcart">
+#                    Add To Cart
+#                 </a> 
+#             </div>
+#         </div>
+#     </div>
+# </div>
+
+# <!-- Bootstrap Modal -->
+# <div class="modal fade" id="imageModal" tabindex="-1" aria-labelledby="imageModalLabel" aria-hidden="true">
+#     <div class="modal-dialog modal-dialog-centered">
+#         <div class="modal-content" style="background: #990000; color: white;">
+#             <div class="modal-header">
+#                 <h5 class="modal-title" id="imageModalLabel">{prod[0]}</h5>
+#                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+#             </div>
+#             <div class="modal-body text-center">
+#                 <img id="modalImage" src="{prod[3]}" class="img-fluid" alt="Product Image" style="border-radius: 10px;">
+#             </div>
+#         </div>
+#     </div>
+# </div>
+
+
+#            """
     return htmlcode
 
 

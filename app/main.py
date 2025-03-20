@@ -39,7 +39,7 @@ app.mount("/static", StaticFiles(directory="static"), name="static")
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["https://ec2-13-201-19-135.ap-south-1.compute.amazonaws.com","https://free.nibhasserver.free.nf","http://127.0.0.1"],
+    allow_origins=["https://perfume.hhhperfumes.shop","https://free.nibhasserver.free.nf","http://127.0.0.1"],
     #allow_origins=["*"],
     allow_credentials=True,
     allow_methods=["*"],
@@ -485,7 +485,8 @@ async def add_payment_details(request:Request,background_tasks: BackgroundTasks)
 
     Thank you for shopping with HHHPERFUMES !
 
-    We’re happy to confirm your order {pay_id} placed on {date.today()}. Our team is preparing your items.
+    We’re happy to confirm your order {pay_id} placed on 
+    {date.today()}. Our team is preparing your items.
 
     Order Summary:{json.dumps(prod_list)}
 

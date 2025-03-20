@@ -17,6 +17,7 @@ function setselectedvalue(value) {
 function getselectedvalue() {
     selectedValue = localStorage.getItem("selectedValue");
     return selectedValue;
+    //return "car perfumes"
 }
 
 
@@ -35,23 +36,10 @@ $.ajax({
 });
 
 
-// let csrfToken = "";
-// $.ajax({
-//     url: geturl() + "/csrf-token",
-//     type: "GET",
-//     success: (data) => {
-//         console.log("CSRF Token Response:", data);
-//         csrfToken = data?.csrf_token || "Not Found";
-//         document.cookie = `csrf_token=${csrfToken}; path=/; Secure; HttpOnly`;
-//     },
-//     error: (xhr, status, error) => {
-//         console.error("Error fetching CSRF token:", xhr.responseText);
-//     }
-// });
+
 
 
 seturl();
-
 
 
 
@@ -78,11 +66,11 @@ $.ajax({
     }
 });
 
+
 $("#styledSelect").val("YourCategoryValue").change();
 
 
 $(document).ready(function () {
-    saveCart();
     loadCart();
     update_cart_logo();
 
@@ -112,14 +100,16 @@ $(document).ready(function () {
         setselectedvalue(selectedValue);
         generate_product_cards(selectedValue);
         }
+        $('html, body').animate({
+            scrollTop: $('#grid-container').offset().top
+        }, 300);
 
     });
+
 
     $("#searchBtn").click(function(){
         var query = $("#searchQuery").val();
         const data = { "category": `${query}` };
-      
-
         $.ajax({
             url: geturl()+"/seach_product/",
             type: "POST",
@@ -127,7 +117,6 @@ $(document).ready(function () {
             data: JSON.stringify(data),
             success: function(response) {
                 $('#grid-container').html(response);
-
                 $('#grid-container').on('click', '#buynow', function (e) {
                     e.preventDefault();
                     var closestCard = $(this).closest('.card');
@@ -149,6 +138,7 @@ $(document).ready(function () {
                     var productDescription = closestCard.find('[id^="product_description"]').text();
                     var productPrice = closestCard.find('[id^="product_price"]').text();
                     var productPrice = parseInt(productPrice.replace(/[₹,]/g, ''));
+                    alert(`${productName} ${productDescription} ${productPrice}`);
                     addToCart(productName, productImageSrc, productDescription, productPrice);
                     update_cart_logo();
                     window.location.href = geturl() + "/cart";
@@ -226,6 +216,7 @@ function create_buynow_storage(productname, productsrc, productprice, productdes
         product_count: 1,
         product_total: productprice
     };
+
 
     // Check if the key exists
     if (localStorage.getItem(key)) {
