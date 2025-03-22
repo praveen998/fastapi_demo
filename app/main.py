@@ -103,6 +103,9 @@ async def dashboard(request: Request):
 async def adminpage(request: Request):
     return templates.TemplateResponse("adminlogin.html", {"request": request})
 
+@app.get("/contact",response_class=HTMLResponse)
+async def contact(request: Request):
+    return templates.TemplateResponse("contactus.html", {"request": request})
 
 
 #addmin authentication--------------------------------------------------------
@@ -536,5 +539,17 @@ async def get_orders(request: Request):
 
     #return {"success": True, "message": "payment details inserted successfully"}
     return msg
+
+
+
+@app.post("/send_feedback")
+async def send_feedback(request:Request,background_tasks: BackgroundTasks):
+    request_data = await request.json() 
+    feedback=request_data.get('feedback')
+    email=request_data.get('email')
+    name= request_data.get('name')
+    print(feedback,name,email)
+    background_tasks.add_task(send_email,f"response from:{name} , email: {email}", feedback,"praveen.gopi717@gmail.com")
+    return {"success": True, "message": "feedback send successfully!"}
 
 

@@ -142,7 +142,6 @@ async def create_new_html(msg,country_name):
                             </div>
                         </div>
                     </div>
-    
         """
 
 
