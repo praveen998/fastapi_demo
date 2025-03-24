@@ -484,6 +484,7 @@ async def add_payment_details(request:Request,background_tasks: BackgroundTasks)
        raise HTTPException(status_code=400, detail="Something went wrong!")
     #print(pay_id,prod_list,custf,custl,ph,em,coun,sta,cit,zipp,addr,total)
     # payment_con=False
+    
     body=f"""
     Dear {custf} {custl},
 
@@ -542,14 +543,14 @@ async def get_orders(request: Request):
 
 
 
-@app.post("/send_feedback")
-async def send_feedback(request:Request,background_tasks: BackgroundTasks):
-    request_data = await request.json() 
-    feedback=request_data.get('feedback')
-    email=request_data.get('email')
-    name= request_data.get('name')
-    print(feedback,name,email)
-    background_tasks.add_task(send_email,f"response from:{name} , email: {email}", feedback,"praveen.gopi717@gmail.com")
-    return {"success": True, "message": "feedback send successfully!"}
+# @app.post("/send_feedback")
+# async def send_feedback(request:Request,background_tasks: BackgroundTasks):
+#     request_data = await request.json() 
+#     feedback=request_data.get('feedback')
+#     email=request_data.get('email')
+#     name= request_data.get('name')
+#     print(feedback,name,email)
+#     background_tasks.add_task(send_email,f"response from:{name} , email: {email}", feedback,"praveen.gopi717@gmail.com")
+#     return {"success": True, "message": "feedback send successfully!"}
 
 

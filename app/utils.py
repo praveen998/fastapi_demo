@@ -102,8 +102,8 @@ async def create_new_html(msg,country_name):
                             </div>
                             <div class="card-body d-flex flex-column justify-content-between">
                                 <div>
-                                    <h5 class="card-title text-center" id="product_name">{prod[0]}</h5>
-                                    <p class="card-text text-center" id="product_description">{prod[1]}</p>
+                                    <p class="card-title text-center text-dark" id="product_name" style="font-size: 14px;">{prod[0]}</p>
+                                    <p class="card-text text-center text-dark" id="product_description">{prod[1]}</p>
                                     <div class="text-center mb-3">
                                         <span class="badge rounded-pill bg-light text-dark"
                                               style="font-size: 1rem; padding: 7px 10px;"  id="product_price">{prod[2][cname]}₹</span>
