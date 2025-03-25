@@ -29,6 +29,7 @@ import secrets
 from fastapi import Response
 
 
+
 app=FastAPI()
 # Set up the templates directory
 templates = Jinja2Templates(directory="templates")
@@ -39,7 +40,7 @@ app.mount("/static", StaticFiles(directory="static"), name="static")
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["https://perfume.hhhperfumes.shop","https://free.nibhasserver.free.nf","http://127.0.0.1"],
+    allow_origins=["https://perfume.hhhperfumes.shop","https://hhhvanilaperfumes.com","http://127.0.0.1"],
     #allow_origins=["*"],
     allow_credentials=True,
     allow_methods=["*"],
@@ -72,6 +73,7 @@ s3_client = boto3.client(
 
 razorpay_client = razorpay.Client(auth=(os.getenv("razorpay_id"),os.getenv("razorpay_key")))
 
+
 @app.on_event("startup")
 async def startup_event():
     await init_db()
@@ -91,17 +93,21 @@ async def home(request: Request, background_tasks: BackgroundTasks):
     #background_tasks.add_task(send_email,"We’ve Received Your Order!", "This is a test email body.", "praveengopi998@gmail.com")
     return templates.TemplateResponse("index.html", {"request": request})
 
+
 @app.get("/buynow",response_class=HTMLResponse)
 async def dashboard(request: Request):
     return templates.TemplateResponse("buynow.html", {"request": request})
+
 
 @app.get("/cart",response_class=HTMLResponse)
 async def dashboard(request: Request):
     return templates.TemplateResponse("cart.html", {"request": request})
 
+
 @app.get("/admin",response_class=HTMLResponse)
 async def adminpage(request: Request):
     return templates.TemplateResponse("adminlogin.html", {"request": request})
+
 
 @app.get("/contact",response_class=HTMLResponse)
 async def contact(request: Request):
