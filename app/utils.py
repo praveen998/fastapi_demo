@@ -87,62 +87,47 @@ async def create_new_html(msg,country_name):
             else:
                  prod.append(value)
             c+=1
+
         htmlcode+=f"""
-     <div class="col">
-                        <div class="card h-100 shadow-sm" style="background: #f8f9fa; border-radius: 15px; border-color:red; overflow: hidden;">
-                            <!-- Image takes half of the card -->
-                            <div style="height: 50%; overflow: hidden;">
-                                <img id="product_image"
-                                     src="{prod[3]}"
-                                     class="card-img-top"
-                                     alt="Product Image"
-                                     data-bs-toggle="modal"
-                                     data-bs-target="#imageModal"
-                                     style="width: 100%; height: 100%; object-fit: cover;">
-                            </div>
-                            <div class="card-body d-flex flex-column justify-content-between">
-                                <div>
-                                    <p class="card-title text-center text-dark" id="product_name" style="font-size: 14px;">{prod[0]}</p>
-                                    <p class="card-text text-center text-dark" id="product_description">{prod[1]}</p>
-                                    <div class="text-center mb-3">
-                                        <span class="badge rounded-pill bg-light text-dark"
-                                              style="font-size: 1rem; padding: 7px 10px;"  id="product_price">{prod[2][cname]}₹</span>
+  <div class="col">
+                            <div class="card h-100 shadow-sm" style="background: #f8f9fa; border-radius: 15px; border-color: red; overflow: hidden;">
+                                <!-- Full image view with aspect ratio maintained -->
+                                <div class="text-center d-flex justify-content-center align-items-center" style="width: 100%; height: 300px; overflow: hidden;">
+                                    <img id="product_image"
+                                         src="{prod[3]}"
+                                         class="card-img-top"
+                                         alt="Product Image"
+                                         data-bs-toggle="modal"
+                                         data-bs-target="#imageModal"
+                                         style="max-width: 100%; max-height: 100%; object-fit: contain;">
+                                </div>
+                                
+                                <div class="card-body d-flex flex-column justify-content-between text-center">
+                                    <div>
+                                        <p class="card-title text-dark fw-bold" id="product_name" style="font-size: 16px;">{prod[0]}</p>
+                                        <p class="card-text text-dark" id="product_description" style="font-size: 14px;">{prod[1]}</p>
+                                        <div class="mb-3">
+                                            <span class="badge rounded-pill bg-light text-dark"
+                                                  style="font-size: 1rem; padding: 7px 10px;" id="product_price">{prod[2][cname]}₹</span>
+                                        </div>
+                                    </div>
+                                    <!-- Buttons with hover effect -->
+                                    <div class="d-flex justify-content-between">
+                                        <a href="#" class="btn btn-danger w-50 me-2 buy-now" id="buynow"
+                                           style="border-radius: 8px; transition: 0.3s; font-weight: bold;">
+                                           Buy Now
+                                        </a>
+                                        <a href="#" class="btn btn-outline-danger w-50 add-cart" id="addcart"
+                                           style="border-radius: 8px; transition: 0.3s; font-weight: bold;">
+                                           Add To Cart
+                                        </a>
                                     </div>
                                 </div>
-                                <!-- Buttons with hover effect -->
-                                <div class="d-flex justify-content-between">
-                                    <a href="#" class="btn btn-danger w-50 me-2 buy-now" id="buynow" 
-                                       style="border-radius: 8px; transition: 0.3s;">
-                                       Buy Now
-                                    </a>
-                                    <a href="#" class="btn btn-outline-danger w-50 add-cart" id="addcart"
-                                       style="border-radius: 8px; transition: 0.3s;">
-                                       Add To Cart
-                                    </a>
-                                </div>
                             </div>
-                        </div>
-                    </div>
-    
-                    <!-- Bootstrap Modal -->
-                    <div class="modal fade" id="imageModal" tabindex="-1" aria-labelledby="imageModalLabel"
-                         aria-hidden="true">
-                        <div class="modal-dialog modal-dialog-centered">
-                            <div class="modal-content" style="background: #f8f9fa;">
-                                <div class="modal-header">
-                                    <h5 class="modal-title" id="imageModalLabel">{prod[0]}</h5>
-                                    <button type="button" class="btn-close" data-bs-dismiss="modal"
-                                            aria-label="Close"></button>
-                                </div>
-                                <div class="modal-body text-center">
-                                    <img id="modalImage"
-                                         src="{prod[3]}"
-                                         class="img-fluid" alt="Product Image" style="border-radius: 10px;">
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-        """
+
+                </div>        
+                    
+                    """
 
     return htmlcode
 

@@ -62,6 +62,7 @@ $(document).ready(function () {
             `
             content.html(product_category);
             loadCategories();
+
         }
 
         else if(page === "add_product"){
@@ -247,54 +248,19 @@ function deleteCategory(id) {
 }
 
 
-function load_addproject_Categories(){
-    $.ajax({
-        url: geturl() + "/list_category",
-        method: "GET",
-        success: function (data) {
-            const selectElement = $("#styledSelect");
-            selectElement.empty(); // Clear existing options
-            // Add new options dynamically
-            data.forEach(option => {
-                selectElement.append(
-                    `<option value="${option.categories}">${option.categories}</option>`
-                );
-            });
-        },
-        error: function () {
-            alert("Failed to load options. Please try again.");
-        }
-    });
-}
 
 function load_addproject_Categories(){
     $.ajax({
         url: geturl() + "/list_category",
         method: "GET",
         success: function (data) {
+           
             const selectElement = $("#styledSelect");
-            selectElement.empty(); // Clear existing options
+            //  selectElement.empty();
             // Add new options dynamically
-            data.forEach(option => {
-                selectElement.append(
-                    `<option value="${option.categories}">${option.categories}</option>`
-                );
-            });
-        },
-        error: function () {
-            alert("Failed to load options. Please try again.");
-        }
-    });
-}
-
-function load_addproject_Categories(){
-    $.ajax({
-        url: geturl() + "/list_category",
-        method: "GET",
-        success: function (data) {
-            const selectElement = $("#styledSelect");
-            selectElement.empty(); // Clear existing options
-            // Add new options dynamically
+            // selectElement.append(
+            //         `<option value=""> select categories</option>`
+            //     );
             data.forEach(option => {
                 selectElement.append(
                     `<option value="${option.categories}">${option.categories}</option>`
@@ -310,14 +276,13 @@ function load_addproject_Categories(){
 
 
 function loadCategories() {
-
     $.ajax({
         url: geturl() + "/list_category", 
         method: "GET",
         success: function (data) {
+        
             const tableBody = $("#categoryTableBody");
             tableBody.empty(); 
-
             if (data.length === 0) {
                 tableBody.append("<tr><td colspan='2'>No categories available</td></tr>");
             } else {

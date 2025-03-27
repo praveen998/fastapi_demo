@@ -70,6 +70,7 @@ $.ajax({
 $("#styledSelect").val("YourCategoryValue").change();
 
 
+
 $(document).ready(function () {
     loadCart();
     update_cart_logo();
@@ -90,6 +91,7 @@ $(document).ready(function () {
     $("#iterate").click(function () {
         iterateCartItems();
     });
+
 
     //submit selection boc category to backend------------------------------------
     $("#styledSelect").on("change", function () {
